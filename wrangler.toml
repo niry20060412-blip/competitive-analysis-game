@@ -5,12 +5,9 @@ name = "comp-dungeon"
 main = "worker.js"
 compatibility_date = "2026-10-29"
 
-# 静态资源：网站页面放在 assets/ 目录
+# 静态资源：网站页面放在 site/ 目录，通过 ASSETS 绑定自动托管
 [assets]
 directory = "./site"
 binding = "ASSETS"
 
-# 自定义路由：整个域名都走这个 Worker
-routes = [
-  { pattern = "niriy.cn/*", zone_name = "niriy.cn" }
-]
+# 不写死 routes：域名(comp.niry.cn)由你在 Cloudflare 网页 Domains 标签里手动绑定
