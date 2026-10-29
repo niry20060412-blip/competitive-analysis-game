@@ -9,9 +9,9 @@ search.config.json
 server.js
 package.json
 
-# 历史遗留的多余图片（前端只引用 assets 里 6 张）
-assets/像素风_*.png
-assets/victory.png
+# 历史遗留的多余图片（前端只引用 site/assets 里 6 张）
+site/assets/像素风_*.png
+site/assets/victory.png
 
 # 系统文件
 .DS_Store

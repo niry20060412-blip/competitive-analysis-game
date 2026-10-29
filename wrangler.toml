@@ -1,0 +1,16 @@
+# 竞赛副本闯关 - Cloudflare Worker 配置
+# 一个 Worker 同时托管：网站页面(静态资源) + 搜索后端(/api/*)
+
+name = "comp-dungeon"
+main = "worker.js"
+compatibility_date = "2026-10-29"
+
+# 静态资源：网站页面放在 assets/ 目录
+[assets]
+directory = "./site"
+binding = "ASSETS"
+
+# 自定义路由：整个域名都走这个 Worker
+routes = [
+  { pattern = "niriy.cn/*", zone_name = "niriy.cn" }
+]

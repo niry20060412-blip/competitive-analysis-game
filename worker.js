@@ -63,8 +63,28 @@ export default {
       }
     }
 
-    // 其余请求：返回提示（前端静态页面用 Cloudflare 静态资源单独托管，或见部署说明）
-    return json({ ok: false, error: 'not_found', message: '请访问前端页面' }, 404);
+    // 其余请求：走静态资源（网站页面），由 Cloudflare 的 assets 绑定自动提供
+    // env.ASSETS 是 assets 目录的绑定，用它来服务 index.html、图片等
+    try {
+      const asset = await env.ASSETS.fetch(request);
+      if (asset && asset.status !== 404) {
+        return asset;
+      }
+    } catch (e) {
+      // 忽略，继续走下面的兜底
+    }
+
+    // 兜底：SPA 回退到 index.html（如果 assets 里有）
+    try {
+      const fallback = await env.ASSETS.fetch(new Request(new URL('/', request.url), request));
+      if (fallback && fallback.status !== 404) {
+        return fallback;
+      }
+    } catch (e) {
+      // 忽略
+    }
+
+    return json({ ok: false, error: 'not_found', message: '页面不存在' }, 404);
   },
 };
 
