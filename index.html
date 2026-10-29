@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>欢迎挑战竞赛副本</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;
+    overflow:hidden; background:#000; color:#fff; user-select:none;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ===== 舞台：用像素风景图做背景（一比一完整显示，不放大不裁切）===== */
+  .stage{ position:fixed; inset:0; overflow:hidden; }
+  .bg{
+    position:absolute; inset:0;
+    background-size:cover; background-position:center; background-repeat:no-repeat;
+    transition:opacity 1.4s ease; image-rendering:pixelated;
+  }
+  .bg-day{ background-image:url('assets/bg_day.png'); background-color:#a9dcf5; opacity:1; }
+  .bg-night{ background-image:url('assets/bg_night.png'); background-color:#0b1030; opacity:0; }
+  .stage.night .bg-day{ opacity:0; }
+  .stage.night .bg-night{ opacity:1; }
+
+  /* 轻微暗化，让文字/按钮更清晰 */
+  .overlay{ position:absolute; inset:0; background:linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.28)); pointer-events:none; }
+
+  /* 动态粒子层 */
+  #fxCanvas{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:5; }
+
+  /* ===== 页面 ===== */
+  .page{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; transition:opacity .45s ease, transform .45s ease; z-index:10; }
+  .page.hidden{ opacity:0; pointer-events:none; transform:scale(.96); }
+
+  /* 跳动标题 */
+  .px-title{
+    font-size:34px; font-weight:900; letter-spacing:3px; color:#fff;
+    text-shadow:4px 4px 0 rgba(0,0,0,.45), 0 0 24px rgba(255,255,255,.26);
+    margin:0 0 14px; text-align:center; line-height:1.3;
+  }
+  .px-title span{ display:inline-block; animation:hop 1.6s ease-in-out infinite; }
+  .px-title span:nth-child(1){animation-delay:0s;} .px-title span:nth-child(2){animation-delay:.08s;}
+  .px-title span:nth-child(3){animation-delay:.16s;} .px-title span:nth-child(4){animation-delay:.24s;}
+  .px-title span:nth-child(5){animation-delay:.32s;} .px-title span:nth-child(6){animation-delay:.4s;}
+  .px-title span:nth-child(7){animation-delay:.48s;} .px-title span:nth-child(8){animation-delay:.56s;}
+  .px-title span:nth-child(9){animation-delay:.64s;} .px-title span:nth-child(10){animation-delay:.72s;}
+  @keyframes hop{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+
+  .px-sub{ font-size:15px; color:#fff; opacity:.94; margin:0 0 28px; text-align:center; text-shadow:2px 2px 0 rgba(0,0,0,.4); letter-spacing:2px; }
+
+  /* 按钮 */
+  .px-btn{
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:#ff8c42; color:#fff; border:none; border-radius:12px;
+    padding:13px 26px; font-size:16px; font-weight:800; letter-spacing:3px;
+    box-shadow:0 6px 0 #c95f1e, 0 0 0 2px rgba(0,0,0,.15); transition:.12s;
+  }
+  .px-btn:hover{ filter:brightness(1.08); transform:translateY(-3px); box-shadow:0 9px 0 #c95f1e;}
+  .px-btn:active{ transform:translateY(3px); box-shadow:0 3px 0 #c95f1e;}
+  .px-btn.small{ padding:7px 16px; font-size:12px; letter-spacing:1px; background:rgba(0,0,0,.32); box-shadow:0 4px 0 rgba(0,0,0,.35); border:1.5px solid rgba(255,255,255,.55); margin-top:10px; }
+  .px-btn.small:hover{ background:rgba(0,0,0,.45); }
+  .btn-row{ display:flex; flex-direction:column; align-items:center; }
+
+  /* 小返回按钮 */
+  .mini-back{
+    display:inline-block; cursor:pointer; background:none; border:none;
+    color:rgba(255,255,255,.72); font-size:12.5px; text-decoration:underline; padding:4px 6px;
+  }
+  .mini-back:hover{ color:#ffd166; }
+  .mini-row{ text-align:center; margin-top:12px; }
+
+  /* 主题切换 */
+  .theme-toggle{ position:absolute; top:14px; right:14px; z-index:20; cursor:pointer; background:rgba(0,0,0,.3); border:2px solid rgba(255,255,255,.5); border-radius:10px; padding:7px 14px; font-size:14px; color:#fff; font-weight:700; letter-spacing:1px; white-space:nowrap; }
+  .theme-toggle:hover{ background:rgba(0,0,0,.45); }
+
+  /* ===== 输入页 ===== */
+  .input-card{ background:rgba(0,0,0,.42); border-radius:18px; padding:24px 20px; width:min(440px,88vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.2); }
+  .input-card h2{ text-align:center; margin:0 0 6px; font-size:20px; letter-spacing:2px; }
+  .input-card .tip{ text-align:center; color:rgba(255,255,255,.78); font-size:13px; margin:0 0 20px; }
+  .input-methods{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .method{ background:rgba(255,255,255,.13); border:2px solid rgba(255,255,255,.24); border-radius:14px; padding:18px 10px; text-align:center; cursor:pointer; transition:.15s; }
+  .method:hover{ background:rgba(255,255,255,.22); transform:translateY(-3px); }
+  .method .m-icon{ font-size:30px; display:block; margin-bottom:7px; }
+  .method .m-name{ font-size:14px; font-weight:700; letter-spacing:2px; }
+  .method .m-desc{ font-size:11px; color:rgba(255,255,255,.68); margin-top:3px; }
+  .back-btn{ display:block; margin:16px auto 0; background:none; border:none; color:rgba(255,255,255,.75); cursor:pointer; font-size:13px; text-decoration:underline; }
+
+  /* 直接输入比赛名字的快捷搜索条 */
+  .search-bar{ margin-top:18px; border-top:1px dashed rgba(255,255,255,.2); padding-top:16px; }
+  .search-bar .sb-label{ font-size:12px; color:rgba(255,255,255,.62); text-align:center; margin-bottom:9px; letter-spacing:1px; }
+  .search-row{ display:flex; gap:8px; }
+  .search-row .tf-input{ flex:1; }
+  .search-row .px-btn{ width:auto; flex:0 0 auto; padding:0 16px; margin:0; }
+  .search-hint{ font-size:11px; color:rgba(255,255,255,.5); text-align:center; margin-top:8px; line-height:1.6; }
+
+  /* ===== 文字手动填写比赛 ===== */
+  .textform-card{ background:rgba(0,0,0,.5); border-radius:18px; padding:26px 24px; width:min(480px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
+  .textform-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#ffd166; }
+  .textform-card .tf-tip{ text-align:center; color:rgba(255,255,255,.72); font-size:12.5px; margin:0 0 18px; line-height:1.6; }
+  .tf-group{ margin-bottom:12px; }
+  .tf-group label{ display:block; font-size:13px; color:#ffd166; font-weight:700; margin-bottom:5px; }
+  .tf-input{ width:100%; padding:10px 12px; border-radius:9px; border:2px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); color:#fff; font-size:14px; outline:none; }
+  .tf-input:focus{ border-color:#ffd166; }
+  .tf-input::placeholder{ color:rgba(255,255,255,.4); }
+  .tf-note{ font-size:12px; color:rgba(255,255,255,.6); line-height:1.7; margin:14px 0; }
+  .textform-card .px-btn{ margin-top:4px; }
+
+  /* ===== 进度页 ===== */
+  .progress-card{ background:rgba(0,0,0,.45); border-radius:16px; padding:24px 22px; width:min(400px,86vw); text-align:center; backdrop-filter:blur(3px); }
+  .progress-card .p-title{ font-size:18px; font-weight:800; margin:0 0 8px; letter-spacing:2px;}
+  .progress-card .p-boss{ font-size:13px; opacity:.88; margin:0 0 20px;}
+  .p-bar-wrap{ height:20px; background:rgba(0,0,0,.4); border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,.35); }
+  .p-bar{ height:100%; width:0%; border-radius:8px; background:repeating-linear-gradient(45deg,#ffd166 0 14px,#ff8c42 14px 28px); background-size:28px 28px; transition:width .15s linear; animation:barStripes .6s linear infinite; }
+  @keyframes barStripes{ from{background-position:0 0;} to{background-position:28px 0;} }
+  .p-meta{ display:flex; justify-content:space-between; font-size:12px; margin-top:9px; opacity:.92;}
+  .p-bored{ margin-top:20px; font-size:13px; line-height:1.7; opacity:.94; min-height:44px;}
+
+  /* ===== 副本情报页 ===== */
+  .intel-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(440px,90vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:86vh; overflow-y:auto; }
+  .intel-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#ffd166; }
+  .intel-name{ text-align:center; font-size:17px; font-weight:900; color:#fff; letter-spacing:1px; margin:0 0 10px; text-shadow:0 2px 0 rgba(0,0,0,.4); }
+  .intel-badge{ text-align:center; margin:0 0 10px; }
+  .intel-badge span{ display:inline-block; font-size:12px; padding:4px 12px; border-radius:999px; background:rgba(46,204,113,.18); border:1px solid #2ecc71; color:#7bed9f; font-weight:700; }
+  .intel-card .i-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 18px; }
+  .intel-row{ display:flex; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.12); font-size:14px; }
+  .intel-row:last-child{ border-bottom:none; }
+  .intel-row .k{ flex:0 0 76px; color:#ffd166; font-weight:700; }
+  .intel-row .v{ flex:1; color:#e8e3f8; }
+  .intel-levels{ margin-top:14px; }
+  .intel-levels .lv{ display:flex; align-items:center; gap:10px; padding:8px 0; font-size:14px; color:#ddd5f5; }
+  .intel-levels .lv .n{ display:inline-flex; min-width:24px; height:24px; align-items:center; justify-content:center; background:#ff8c42; color:#fff; border-radius:6px; font-weight:800; font-size:13px; }
+  .intel-card .px-btn{ width:100%; margin-top:18px; }
+  .intel-confirm-note{ text-align:center; font-size:12px; color:rgba(255,255,255,.6); margin-top:10px; }
+
+  /* ===== 选装备页 ===== */
+  .equip-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(460px,90vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:86vh; overflow-y:auto; }
+  .equip-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#4dd8e0; }
+  .equip-card .e-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 18px; }
+  .equip-card fieldset{ border:none; padding:0; margin:0 0 16px; }
+  .equip-card legend{ font-size:14px; font-weight:700; margin-bottom:8px; color:#ffd166; letter-spacing:1px; }
+  .eq-opts{ display:flex; flex-wrap:wrap; gap:8px; }
+  .eq-opt{
+    padding:8px 13px; border:2px solid rgba(255,255,255,.28); border-radius:9px; cursor:pointer;
+    font-size:13.5px; background:rgba(255,255,255,.08); color:#fff; transition:.13s; user-select:none;
+  }
+  .eq-opt:hover{ border-color:#ffd166; transform:translateY(-2px); }
+  .eq-opt.on{ border-color:#ffd166; background:rgba(255,209,102,.2); color:#ffd166; font-weight:700; }
+  .eq-opt .gicon{ margin-right:5px; }
+  .equip-card .px-btn{ width:100%; margin-top:6px; }
+
+  /* ===== 装备测评页 ===== */
+  .eval-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(560px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
+  .eval-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#5fe08a; }
+  .eval-card .ev-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 16px; }
+  .eval-summary{ background:rgba(95,224,138,.12); border:2px solid rgba(95,224,138,.4); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
+  .eval-summary .es-tag{ font-size:13px; font-weight:800; color:#5fe08a; letter-spacing:1px; margin-bottom:6px; }
+  .eval-summary .es-text{ font-size:14px; color:#e8e3f8; line-height:1.75; }
+  .eval-gear{ font-size:12.5px; color:rgba(255,255,255,.6); margin-bottom:14px; text-align:center; }
+  .eval-item{ border:2px solid rgba(255,255,255,.14); border-radius:11px; padding:12px 14px; margin:10px 0; background:rgba(255,255,255,.05); }
+  .eval-item .ei-title{ font-weight:700; font-size:14px; margin-bottom:4px; }
+  .eval-item .ei-title .tag{ display:inline-block; font-size:11px; padding:2px 8px; border-radius:6px; margin-left:8px; vertical-align:middle; font-weight:700; }
+  .tag-ok{ background:rgba(95,224,138,.2); color:#5fe08a; border:1px solid rgba(95,224,138,.5); }
+  .tag-warn{ background:rgba(255,209,102,.18); color:#ffd166; border:1px solid rgba(255,209,102,.5); }
+  .tag-none{ background:rgba(255,255,255,.12); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.3); }
+  .eval-item .ei-text{ font-size:13px; color:#ddd5f5; line-height:1.7; }
+  .eval-item .ei-why{ font-size:12px; color:rgba(255,255,255,.55); margin-top:6px; line-height:1.6; }
+
+  /* ===== 过来人经验页 ===== */
+  .exp-page-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(560px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
+  .exp-page-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#ffd166; }
+  .exp-page-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 16px; }
+  .exp-card{ border:2px solid rgba(255,209,102,.35); border-radius:12px; padding:12px 14px; margin:10px 0; background:rgba(20,16,38,.72); }
+  .exp-card .ex-title{ font-size:14px; font-weight:800; color:#ffd166; margin-bottom:5px; }
+  .exp-card .ex-text{ font-size:13px; color:#e8e3f8; line-height:1.7; }
+  .exp-card .ex-src{ font-size:11px; color:rgba(255,255,255,.5); margin-top:6px; }
+  .exp-page-note{ font-size:11.5px; color:rgba(255,255,255,.55); line-height:1.6; margin-top:10px; }
+
+  /* ===== 关卡地图页 ===== */
+  .map-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 20px; width:min(720px,94vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); }
+  .map-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#ffd166; }
+  .map-card .m-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 20px; }
+  .map-track{ display:flex; align-items:flex-start; justify-content:space-between; position:relative; }
+  .map-track::before{
+    content:""; position:absolute; top:34px; left:40px; right:40px; height:4px;
+    background:rgba(255,255,255,.18); z-index:0;
+  }
+  .map-node{ flex:1; display:flex; flex-direction:column; align-items:center; position:relative; z-index:1; cursor:pointer; }
+  .map-node .dot{
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:22px; background:#2d2547; border:3px solid #ff8c42; box-shadow:0 0 14px rgba(255,140,66,.5);
+    transition:.15s;
+  }
+  .map-node.done .dot{ background:#1d7a45; border-color:#5fe08a; box-shadow:0 0 14px rgba(95,224,138,.6); }
+  .map-node.current .dot{ transform:scale(1.15); }
+  .map-node:hover .dot{ transform:scale(1.1); }
+  .map-node .nm{ font-size:14px; font-weight:800; margin-top:10px; text-align:center; color:#fff; }
+  .map-node .rt{ font-size:11.5px; color:rgba(255,255,255,.62); margin-top:3px; text-align:center; }
+  .map-node .rt2{ font-size:10.5px; color:rgba(255,255,255,.45); text-align:center; margin-top:2px; }
+  .map-node.done .nm{ color:#5fe08a; }
+
+  /* ===== 任务清单页 ===== */
+  .task-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 22px; width:min(560px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
+  .task-card h2{ text-align:center; margin:0 0 2px; font-size:20px; letter-spacing:2px; color:#ffd166; }
+  .task-card .t-boss{ text-align:center; color:#ff8c42; font-size:13px; margin:0 0 4px; }
+  .task-card .t-real{ text-align:center; color:rgba(255,255,255,.7); font-size:12.5px; margin:0 0 16px; }
+  .task-step{ border:2px solid rgba(255,255,255,.16); border-radius:12px; padding:12px 14px; margin:10px 0; background:rgba(255,255,255,.06); cursor:pointer; transition:.13s; }
+  .task-step:hover{ border-color:#4dd8e0; background:rgba(255,255,255,.1); }
+  .task-step .s-title{ font-weight:700; font-size:14.5px; }
+  .task-step .s-hint{ font-size:11.5px; color:rgba(255,255,255,.55); margin-top:2px; }
+  .task-step .s-open{ color:#4dd8e0; font-size:12px; margin-top:4px; }
+
+  .plan-title{ margin:20px 0 8px; font-size:15px; font-weight:800; color:#5fe08a; letter-spacing:1px; }
+  .plan-item{ display:flex; align-items:center; gap:10px; padding:9px 10px; border-bottom:1px solid rgba(255,255,255,.1); font-size:14px; color:#ddd5f5; cursor:pointer; }
+  .plan-item .box{ width:20px; height:20px; border:2px solid rgba(255,255,255,.45); border-radius:5px; flex:none; display:flex; align-items:center; justify-content:center; font-size:14px; color:#5fe08a; }
+  .plan-item.checked .box{ background:#1d7a45; border-color:#5fe08a; }
+  .plan-item.checked{ color:rgba(255,255,255,.55); text-decoration:line-through; }
+  .plan-item:hover{ background:rgba(255,255,255,.05); }
+
+  /* ===== 参照计划表（独立页）===== */
+  .plan-card{ background:rgba(0,0,0,.5); border-radius:18px; padding:26px 24px; width:min(480px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(95,224,138,.4); max-height:88vh; overflow-y:auto; }
+  .plan-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#5fe08a; }
+  .plan-card .plan-real{ text-align:center; color:rgba(255,255,255,.7); font-size:12.5px; margin:0 0 6px; }
+  .plan-card .plan-hint{ text-align:center; color:rgba(255,255,255,.55); font-size:12px; margin:0 0 16px; }
+  .plan-card .plan-item{ font-size:15px; padding:11px 12px; }
+  .plan-actions{ display:flex; gap:10px; margin-top:18px; justify-content:center; }
+  .plan-actions .px-btn.small{ margin-top:0; }
+
+  /* ===== 弹窗 ===== */
+  .modal-mask{ position:fixed; inset:0; background:rgba(8,6,18,.72); display:none; align-items:center; justify-content:center; z-index:60; }
+  .modal-mask.show{ display:flex; }
+  .modal-box{ background:#241d3a; border:2px solid rgba(255,255,255,.25); border-radius:16px; padding:22px 20px; max-width:420px; width:90vw; max-height:80vh; overflow-y:auto; animation:pop .28s ease; }
+  .modal-box h3{ margin:0 0 12px; font-size:17px; color:#ffd166; letter-spacing:1px; }
+  .modal-box .mb-label{ font-size:12px; color:#4dd8e0; font-weight:700; margin:12px 0 4px; letter-spacing:1px; }
+  .modal-box .mb-text{ font-size:14px; color:#e8e3f8; line-height:1.7; }
+  .modal-close{ display:block; width:100%; margin-top:16px; padding:10px; background:#7b5cff; color:#fff; border:none; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:2px; }
+  .modal-close:hover{ filter:brightness(1.1); }
+
+  /* 奖励弹窗：图片强制居中（正方形容器 + object-fit contain）*/
+  .reward-box{ display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .reward-box .rb-img{ width:200px; height:200px; max-width:78%; object-fit:contain; border-radius:14px; border:3px solid #ffd166; box-shadow:0 8px 30px rgba(255,209,102,.35); margin:0 auto 14px; display:block; background:#120e22; }
+  .reward-box .rb-title{ font-size:20px; font-weight:900; color:#ffd166; letter-spacing:2px; margin:0 0 10px; }
+  .reward-box .rb-text{ font-size:14px; color:#e8e3f8; line-height:1.8; margin:0 0 4px; }
+  .reward-box .rb-sub{ font-size:12px; color:rgba(255,255,255,.55); margin-top:10px; }
+  .reward-box .rb-btn-row{ display:flex; gap:10px; margin-top:14px; width:100%; }
+
+  /* 总奖励：4 张成果图并排 */
+  .total-badges{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:12px 0; position:relative; z-index:1; }
+  .total-badge{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .total-badge img{ width:64px; height:64px; object-fit:contain; border-radius:8px; border:2px solid #ffd166; background:#120e22; }
+  .total-badge span{ font-size:11px; color:rgba(255,255,255,.7); }
+
+  /* 最终关：动态粒子 + 更隆重的结算 */
+  .reward-box.reward-final{ position:relative; overflow:hidden; background:linear-gradient(180deg,#1b1530,#2a1f4a); }
+  .reward-box.reward-final .rb-title{ font-size:24px; }
+  .reward-box.reward-final .rb-img{ border-color:#ffd166; box-shadow:0 10px 40px rgba(255,209,102,.5); }
+  .rf-particles{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+  .reward-final .rb-img, .reward-final .rb-title, .reward-final .rb-text, .reward-final .rb-sub, .reward-final .modal-close{ position:relative; z-index:1; }
+  .rf-p{ position:absolute; border-radius:50%; animation:rfRise 3s ease-in infinite; opacity:0; }
+  @keyframes rfRise{
+    0%{ transform:translateY(0) scale(1); opacity:0; }
+    15%{ opacity:1; }
+    100%{ transform:translateY(-140px) scale(.2); opacity:0; }
+  }
+
+  /* ===== 鼠标自动点击动画 ===== */
+  .auto-cursor{ position:fixed; z-index:80; width:30px; height:30px; pointer-events:none; filter:drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+  .auto-cursor svg{ width:100%; height:100%; }
+
+  /* ===== 胜利结算页 ===== */
+  .victory-page{ background:rgba(0,0,0,.4); }
+  .victory-box{ text-align:center; width:min(440px,90vw); }
+  .victory-img{ width:100%; max-width:420px; border-radius:16px; border:3px solid #ffd166; box-shadow:0 10px 40px rgba(255,209,102,.35); margin:0 auto 18px; display:block; }
+  .victory-box .v-title{ font-size:26px; font-weight:900; color:#ffd166; letter-spacing:3px; text-shadow:3px 3px 0 rgba(0,0,0,.5); margin:0 0 8px; }
+  .victory-box .v-text{ font-size:15px; color:#fff; line-height:1.7; margin:0 0 6px; text-shadow:1px 1px 0 rgba(0,0,0,.4); }
+  .victory-box .v-count{ font-size:13px; color:rgba(255,255,255,.7); margin:16px 0 0; }
+
+  @keyframes pop{ from{transform:scale(.78); opacity:0;} to{transform:scale(1); opacity:1;} }
+
+  @media (max-width:640px){
+    .map-card{ padding:20px 14px; }
+    .map-node .dot{ width:36px; height:36px; font-size:18px; }
+    .map-node .nm{ font-size:12px; }
+    .map-node .rt{ font-size:10px; }
+    .map-node .rt2{ font-size:9.5px; }
+    .victory-box .v-title{ font-size:22px; }
+  }
+
+  /* ===== 手机适配 ===== */
+  @media (max-width:640px){
+    .px-title{ font-size:26px; letter-spacing:2px; }
+    .px-sub{ font-size:14px; margin-bottom:22px; }
+    .px-btn{ padding:12px 22px; font-size:15px; }
+    .theme-toggle{ top:10px; right:10px; padding:6px 12px; font-size:13px; }
+    .input-card{ padding:20px 16px; width:92vw; }
+    .input-card h2{ font-size:18px; }
+    .method{ padding:16px 8px; }
+    .method .m-icon{ font-size:26px; }
+    .progress-card{ padding:20px 16px; width:90vw; }
+    .progress-card .p-title{ font-size:16px; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+</head>
+<body>
+
+<div class="stage day" id="stage">
+  <!-- 背景图 -->
+  <div class="bg bg-day"></div>
+  <div class="bg bg-night"></div>
+  <div class="overlay"></div>
+
+  <!-- 动态粒子层 -->
+  <canvas id="fxCanvas"></canvas>
+
+  <!-- 主题切换 -->
+  <div class="theme-toggle" id="themeToggle">🌙 切夜晚</div>
+
+  <!-- ===== 第 1 页：欢迎 ===== -->
+  <div class="page" id="pageWelcome">
+    <h1 class="px-title" id="welcomeTitle">欢迎挑战竞赛副本</h1>
+    <p class="px-sub">选一个入口，进入你的副本世界</p>
+    <div class="btn-row">
+      <button class="px-btn" id="enterBtn">⚔️ 进入副本</button>
+      <button class="px-btn small" id="demoBtn">试试示例副本</button>
+    </div>
+  </div>
+
+  <!-- ===== 第 2 页：输入方式 ===== -->
+  <div class="page hidden" id="pageInput">
+    <div class="input-card">
+      <h2>📥 提供副本情报</h2>
+      <p class="tip">选一种方式，把比赛信息交给我</p>
+      <div class="input-methods">
+        <div class="method" data-m="link"><span class="m-icon">🔗</span><span class="m-name">链接</span><span class="m-desc">粘贴比赛网址</span></div>
+        <div class="method" data-m="image"><span class="m-icon">🖼️</span><span class="m-name">图片</span><span class="m-desc">上传通知截图</span></div>
+        <div class="method" data-m="file"><span class="m-icon">📄</span><span class="m-name">文件</span><span class="m-desc">上传文档</span></div>
+        <div class="method" data-m="text"><span class="m-icon">✍️</span><span class="m-name">文字</span><span class="m-desc">手动描述比赛</span></div>
+      </div>
+      <div class="search-bar">
+        <div class="sb-label">🔍 或者，直接输入比赛名字，我帮你查</div>
+        <div class="search-row">
+          <input class="tf-input" id="searchName" placeholder="比如：创新大赛 / 挑战杯 / 数学建模" />
+          <button class="px-btn" id="searchBtn">查一查</button>
+        </div>
+        <div class="search-hint">从常见比赛库里帮你匹配，出来信息你再核对</div>
+      </div>
+      <div class="mini-row"><button class="mini-back" id="backBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 2.5 页：链接抓取 ===== -->
+  <div class="page hidden" id="pageLinkForm">
+    <div class="textform-card">
+      <h2>🔗 贴链接，自动抓取比赛情报</h2>
+      <p class="tf-tip">把比赛通知的网址粘进来，我会尝试去读网页、整理成副本情报。抓出来的结果需要你确认无误后再继续。</p>
+      <div class="tf-group">
+        <label>比赛通知链接 *</label>
+        <input class="tf-input" id="linkUrl" placeholder="例如：https://cy.ncss.cn/..." />
+      </div>
+      <p class="tf-note">⚠️ 很多比赛网站不允许外部读取（浏览器会拦截），如果自动抓取失败，会请你把网页正文复制粘贴进来，我用 AI 帮你抽出关键信息。抓不到或不确定的会标「未核实」，不会瞎填。</p>
+      <button class="px-btn" id="linkSubmitBtn" style="width:100%;">🔍 开始抓取</button>
+      <div class="mini-row"><button class="mini-back" id="linkBackBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 2.5 页：复制粘贴正文（链接抓取失败时的兜底） ===== -->
+  <div class="page hidden" id="pagePasteForm">
+    <div class="textform-card">
+      <h2>📋 把网页正文粘贴进来</h2>
+      <p class="tf-tip" id="pasteTip">自动抓取没成功（这个网站不让外部读取，很常见）。请打开比赛通知页面，把正文内容复制粘贴到下面，我用 AI 帮你抽出比赛信息。</p>
+      <div class="tf-group">
+        <label>网页正文内容 *</label>
+        <textarea class="tf-input" id="pasteContent" rows="8" placeholder="把比赛通知的正文粘贴到这里（标题、主办、时间、报名方式等尽量全）…" style="height:auto;min-height:140px;resize:vertical;"></textarea>
+      </div>
+      <p class="tf-note">💡 内容越全越好：标题、主办方、参赛对象、赛制流程、报名入口、时间安排。不确定的地方 AI 会标「未核实」。</p>
+      <button class="px-btn" id="pasteSubmitBtn" style="width:100%;">🤖 AI 帮我整理</button>
+      <button class="px-btn" id="pasteToSearchBtn" style="width:100%;margin-top:10px;background:rgba(255,255,255,.16);">🔍 不想粘贴，直接输入比赛名字</button>
+      <div class="mini-row"><button class="mini-back" id="pasteBackBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 2.5 页：文字手动填写比赛 ===== -->
+  <div class="page hidden" id="pageTextForm">
+    <div class="textform-card">
+      <h2>✍️ 手动填写比赛信息</h2>
+      <p class="tf-tip">把比赛的基本信息填进来，我会生成一个和示例一样的副本。带 * 的必填，其余可先空着。</p>
+      <div class="tf-group">
+        <label>比赛名称 *</label>
+        <input class="tf-input" id="tfName" placeholder="例如：中国国际大学生创新大赛" />
+      </div>
+      <div class="tf-group">
+        <label>主办方</label>
+        <input class="tf-input" id="tfHost" placeholder="例如：教育部等多部委" />
+      </div>
+      <div class="tf-group">
+        <label>赛制 / 流程</label>
+        <input class="tf-input" id="tfSystem" placeholder="例如：校赛 → 省赛 → 总决赛" />
+      </div>
+      <div class="tf-group">
+        <label>参赛对象</label>
+        <input class="tf-input" id="tfTarget" placeholder="例如：高校在校生，毕业5年内可报" />
+      </div>
+      <div class="tf-group">
+        <label>报名入口（网址）</label>
+        <input class="tf-input" id="tfUrl" placeholder="例如：cy.ncss.cn" />
+      </div>
+      <div class="tf-group">
+        <label>赛道 / 组别</label>
+        <input class="tf-input" id="tfTrack" placeholder="例如：高教主赛道、职教赛道" />
+      </div>
+      <div class="tf-group">
+        <label>时间安排</label>
+        <input class="tf-input" id="tfTime" placeholder="例如：4-7月报名，9月总决赛" />
+      </div>
+      <p class="tf-note">💡 关卡的详细流程（每关要干嘛、交什么）我先按通用模板生成，你之后可以在任务讲解里看。后续接 AI 后，会自动帮你拆得更细。</p>
+      <button class="px-btn" id="tfSubmitBtn" style="width:100%;">🚀 生成我的副本</button>
+      <div class="mini-row"><button class="mini-back" id="tfBackBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 3 页：进度 ===== -->
+  <div class="page hidden" id="pageProgress">
+    <div class="progress-card">
+      <div class="p-title">🔍 正在寻找 Boss 情报…</div>
+      <div class="p-boss" id="pBossName"></div>
+      <div class="p-bar-wrap"><div class="p-bar" id="pBar"></div></div>
+      <div class="p-meta"><span id="pPercent">0%</span><span id="pTime">预计等待约 5 秒</span></div>
+      <div class="p-bored" id="pBored"></div>
+      <div class="mini-row"><button class="mini-back" id="progBackBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 4 页：副本情报 ===== -->
+  <div class="page hidden" id="pageIntel">
+    <div class="intel-card">
+      <h2>📜 副本情报</h2>
+      <div class="intel-name" id="intelName"></div>
+      <div class="intel-badge" id="intelBadge" style="display:none;"></div>
+      <p class="i-sub">请确认这份比赛信息无误，确认后进入选装备</p>
+      <div id="intelRows"></div>
+      <div class="intel-levels">
+        <div style="font-size:13px;color:#ffd166;font-weight:700;margin-bottom:4px;">🗺️ 要打的关卡（4 关）</div>
+        <div id="intelLevels"></div>
+      </div>
+      <button class="px-btn" id="intelOkBtn">✅ 信息无误，去选装备</button>
+      <div class="mini-row"><button class="mini-back" id="intelBackBtn">← 信息有误，返回上一步</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 5 页：选装备 ===== -->
+  <div class="page hidden" id="pageEquip">
+    <div class="equip-card">
+      <h2>⚔️ 选择你的装备</h2>
+      <p class="e-sub">选了装备，才能告诉你每关「打不打得动」；不选也行，就只带你认路</p>
+
+      <fieldset>
+        <legend>🛡️ 初始身份（学历）</legend>
+        <div class="eq-opts" id="eduOpts">
+          <div class="eq-opt" data-v="专科"><span class="gicon">🧱</span>专科</div>
+          <div class="eq-opt" data-v="本科"><span class="gicon">📚</span>本科</div>
+          <div class="eq-opt" data-v="研究生"><span class="gicon">🔬</span>研究生</div>
+        </div>
+      </fieldset>
+
+      <fieldset id="gradeField" style="display:none;">
+        <legend>⭐ 等级（年级）</legend>
+        <div class="eq-opts" id="gradeOpts"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>🎯 擅长方向（专业大类）</legend>
+        <div class="eq-opts" id="majorOpts">
+          <div class="eq-opt" data-v="理工"><span class="gicon">⚙️</span>理工</div>
+          <div class="eq-opt" data-v="计算机/信息"><span class="gicon">💻</span>计算机/信息</div>
+          <div class="eq-opt" data-v="经管"><span class="gicon">📈</span>经管</div>
+          <div class="eq-opt" data-v="文史哲"><span class="gicon">📜</span>文史哲</div>
+          <div class="eq-opt" data-v="法学"><span class="gicon">⚖️</span>法学</div>
+          <div class="eq-opt" data-v="教育学"><span class="gicon">🎓</span>教育学</div>
+          <div class="eq-opt" data-v="艺术/设计"><span class="gicon">🎨</span>艺术/设计</div>
+          <div class="eq-opt" data-v="医学"><span class="gicon">🩺</span>医学</div>
+          <div class="eq-opt" data-v="农学"><span class="gicon">🌾</span>农学</div>
+          <div class="eq-opt" data-v="体育"><span class="gicon">🏅</span>体育</div>
+          <div class="eq-opt" data-v="外语"><span class="gicon">🌍</span>外语</div>
+          <div class="eq-opt" data-v="其他"><span class="gicon">✨</span>其他</div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>🔋 精力值（每周可投入时间）</legend>
+        <div class="eq-opts" id="timeOpts">
+          <div class="eq-opt" data-v="很少"><span class="gicon">🪫</span>很少（每周 &lt;5h）</div>
+          <div class="eq-opt" data-v="一般"><span class="gicon">🔋</span>一般（每周 5~15h）</div>
+          <div class="eq-opt" data-v="充足"><span class="gicon">🔋🔋</span>充足（每周 &gt;15h）</div>
+        </div>
+      </fieldset>
+
+      <button class="px-btn" id="equipDoneBtn">🚀 出发闯关</button>
+      <div class="mini-row">
+        <button class="mini-back" id="equipSkipBtn">不选装备，直接进入流程</button>
+        <span style="color:rgba(255,255,255,.3);margin:0 8px;">｜</span>
+        <button class="mini-back" id="equipBackBtn">← 返回上一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 第 5.5 页：装备测评 ===== -->
+  <div class="page hidden" id="pageEval">
+    <div class="eval-card">
+      <h2>🔍 你的装备测评</h2>
+      <p class="ev-sub">对照这个副本，看看你的装备情况</p>
+      <div class="eval-gear" id="evalGear"></div>
+      <div class="eval-summary">
+        <div class="es-tag" id="evalTag"></div>
+        <div class="es-text" id="evalSummaryText"></div>
+      </div>
+      <div id="evalItems"></div>
+      <button class="px-btn" id="evalExpBtn" style="width:100%;margin-top:14px;background:#ffd166;color:#3a2a00;box-shadow:0 5px 0 #c99a2e;">👀 看看过来人怎么说</button>
+      <button class="px-btn" id="evalGoBtn" style="width:100%;margin-top:12px;">🗺️ 进入关卡地图</button>
+      <div class="mini-row"><button class="mini-back" id="evalBackBtn">← 返回选装备</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 5.6 页：过来人经验 ===== -->
+  <div class="page hidden" id="pageExp">
+    <div class="exp-page-card">
+      <h2>👀 过来人怎么说</h2>
+      <p class="exp-page-sub">针对「<span id="expPageMatch"></span>」的参赛经验，仅供参考，非官方结论</p>
+      <div id="expPageList"></div>
+      <div class="exp-page-note" id="expPageNote"></div>
+      <div class="mini-row"><button class="mini-back" id="expBackBtn">← 返回装备测评</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 6 页：关卡地图 ===== -->
+  <div class="page hidden" id="pageMap">
+    <div class="map-card">
+      <h2>🗺️ 关卡地图</h2>
+      <p class="m-sub" id="mapSub">从第一关开始，逐个击破</p>
+      <div class="map-track" id="mapTrack"></div>
+      <div class="mini-row" style="margin-top:20px;">
+        <button class="px-btn" id="totalRewardBtn" style="display:none;">🏆 查看总奖励</button>
+      </div>
+      <div class="mini-row"><button class="mini-back" id="mapBackBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 7 页：任务清单 ===== -->
+  <div class="page hidden" id="pageTask">
+    <div class="task-card">
+      <h2 id="taskTitle"></h2>
+      <p class="t-boss" id="taskBoss"></p>
+      <p class="t-real" id="taskReal"></p>
+      <div id="taskSteps"></div>
+      <button class="px-btn" id="openPlanBtn" style="width:100%;margin-top:16px;">📋 打开参照计划表</button>
+      <div class="mini-row" style="margin-top:12px;">
+        <button class="mini-back" id="viewRewardBtn" style="display:none;">🎁 查看本关奖励</button>
+      </div>
+      <div class="mini-row"><button class="mini-back" id="taskBackBtn">← 返回关卡地图</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 8 页：参照计划表（独立页）===== -->
+  <div class="page hidden" id="pagePlan">
+    <div class="plan-card">
+      <h2 id="planTitle"></h2>
+      <p class="plan-real" id="planReal"></p>
+      <div class="plan-hint">勾完全部，就解锁这一关的阶段成果</div>
+      <div id="planList"></div>
+      <div class="plan-actions">
+        <button class="px-btn small" id="exportImgBtn">🖼️ 导出图片</button>
+        <button class="px-btn small" id="exportTxtBtn">📄 导出文本</button>
+      </div>
+      <div class="mini-row"><button class="mini-back" id="planBackBtn">← 返回任务讲解</button></div>
+    </div>
+  </div>
+
+  <!-- 步骤详情弹窗 -->
+  <div class="modal-mask" id="stepModal">
+    <div class="modal-box">
+      <h3 id="modalTitle"></h3>
+      <div class="mb-label">💡 怎么做（说人话）</div>
+      <div class="mb-text" id="modalHow"></div>
+      <div class="mb-label">📦 需要准备什么</div>
+      <div class="mb-text" id="modalNeed"></div>
+      <div class="mb-label">⚠️ 注意事项</div>
+      <div class="mb-text" id="modalNote"></div>
+      <button class="modal-close" id="modalClose">知道了</button>
+    </div>
+  </div>
+
+  <!-- 鼠标光标 -->
+  <div class="auto-cursor" id="autoCursor" style="display:none;">
+    <svg viewBox="0 0 24 24"><path fill="#fff" stroke="#333" stroke-width="1.4" d="M5 3l14 8-6.5 1.5L9 19z"/></svg>
+  </div>
+</div>
+
+<script>
+/* ===== 云服务初始化（免密钥大模型调用） ===== */
+let cloud = null;
+let cloudReady = false;
+try {
+  if (typeof WorkBuddyCloud !== "undefined" && WorkBuddyCloud.createWorkBuddyCloud) {
+    cloud = WorkBuddyCloud.createWorkBuddyCloud({
+      endpoint: "https://competition-dungeon.app.workbuddy.host",
+      oauthRelayBaseUrl: "https://www.workbuddy.cn/v2/as/genie-baas/oauth",
+      publishableKey: "wbpk_y632jG35TevEaspK8IZ2l5_r3LYP43o5HBSEGlWmF3vYEj9LJa0pljz",
+    });
+    cloudReady = true;
+  }
+} catch(e) {
+  cloud = null;
+  cloudReady = false;
+}
+
+/* ===== 白天黑夜切换 ===== */
+const stage = document.getElementById("stage");
+const themeToggle = document.getElementById("themeToggle");
+let manualTheme = null;
+function applyTheme(t){
+  if(t==="night"){ stage.classList.remove("day"); stage.classList.add("night"); }
+  else { stage.classList.remove("night"); stage.classList.add("day"); }
+  themeToggle.textContent = t==="night" ? "☀️ 切白天" : "🌙 切夜晚";
+}
+function autoTheme(){ if(manualTheme) return; const h=new Date().getHours(); applyTheme(h>=6&&h<18?"day":"night"); }
+themeToggle.addEventListener("click", ()=>{ const isNight=stage.classList.contains("night"); manualTheme=isNight?"day":"night"; applyTheme(manualTheme); });
+setInterval(autoTheme,30000); autoTheme();
+
+/* ===== 动态粒子层：飘云 / 摆草 / 萤火虫 / 闪烁星 / 光尘 ===== */
+(function(){
+  const cv = document.getElementById("fxCanvas");
+  const ctx = cv.getContext("2d");
+  let W, H;
+
+  function resize(){
+    W = cv.width = window.innerWidth;
+    H = cv.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  const isNight = () => stage.classList.contains("night");
+
+  // 云（像素块组成，缓慢飘动）
+  const clouds = [];
+  for(let i=0;i<6;i++){
+    clouds.push({
+      x: Math.random()*W, y: 40 + Math.random()* (H*0.28),
+      s: 0.6 + Math.random()*0.9, sp: 0.12 + Math.random()*0.28
+    });
+  }
+
+  // 光尘 / 萤火虫
+  const sparks = [];
+  for(let i=0;i<40;i++){
+    sparks.push({
+      x: Math.random()*W, y: Math.random()*H,
+      r: 1 + Math.random()*2.2, sp: 0.2 + Math.random()*0.6,
+      ph: Math.random()*Math.PI*2, vy: 0.1 + Math.random()*0.3
+    });
+  }
+
+  function drawCloud(c){
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.scale(c.s, c.s);
+    ctx.fillStyle = isNight() ? "rgba(150,165,200,0.5)" : "rgba(255,255,255,0.85)";
+    ctx.fillRect(0, 10, 40, 20);
+    ctx.fillRect(14, 0, 30, 24);
+    ctx.fillRect(34, 8, 26, 18);
+    ctx.restore();
+  }
+
+  let t = 0;
+  function loop(){
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+
+    // 云
+    clouds.forEach(c=>{
+      c.x += c.sp;
+      if(c.x - 60*c.s > W) { c.x = -80*c.s; c.y = 40 + Math.random()*(H*0.28); }
+      drawCloud(c);
+    });
+
+    // 光尘 / 萤火虫
+    sparks.forEach(s=>{
+      s.y -= s.vy;
+      s.x += Math.sin(t*2 + s.ph)*0.3;
+      if(s.y < -10){ s.y = H+10; s.x = Math.random()*W; }
+      const tw = 0.4 + 0.6*Math.abs(Math.sin(t*1.5 + s.ph));
+      if(isNight()){
+        // 夜晚：暖黄萤火虫
+        ctx.fillStyle = "rgba(255,220,130,"+(0.5*tw)+")";
+        ctx.shadowColor = "rgba(255,220,130,0.9)";
+        ctx.shadowBlur = 6;
+      } else {
+        // 白天：淡白光尘
+        ctx.fillStyle = "rgba(255,255,255,"+(0.35*tw)+")";
+        ctx.shadowColor = "rgba(255,255,255,0.7)";
+        ctx.shadowBlur = 4;
+      }
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ===== 标题跳动 ===== */
+(function(){
+  const el = document.getElementById("welcomeTitle");
+  const txt = el.textContent;
+  el.innerHTML = txt.split("").map(c=>c===" "?'<span>&nbsp;</span>':'<span>'+c+'</span>').join("");
+})();
+
+/* ===== 页面切换 ===== */
+function showPage(id){
+  ["pageWelcome","pageInput","pageLinkForm","pagePasteForm","pageTextForm","pageProgress","pageIntel","pageEquip","pageEval","pageExp","pageMap","pageTask","pagePlan"].forEach(p=>document.getElementById(p).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+const pBossName=document.getElementById("pBossName");
+
+document.getElementById("enterBtn").addEventListener("click",()=>showPage("pageInput"));
+document.getElementById("backBtn").addEventListener("click",()=>showPage("pageWelcome"));
+
+document.getElementById("demoBtn").addEventListener("click",()=>{
+  currentMatch = DEMO;
+  resetProgressState();
+  pBossName.textContent="Boss："+currentMatch.name+"（示例）";
+  showPage("pageProgress");
+  runProgress();
+});
+
+document.querySelectorAll(".method").forEach(m=>{
+  m.addEventListener("click",()=>{
+    const type = m.dataset.m;
+    if(type === "text"){
+      showPage("pageTextForm");
+    } else if(type === "link"){
+      showPage("pageLinkForm");
+    } else if(type === "image"){
+      alert("「图片」方式：第一版暂不识别图片内容。后续接入 AI 后，上传通知截图就能自动提取比赛信息。");
+    } else if(type === "file"){
+      alert("「文件」方式：第一版暂不解析文档。后续接入 AI 后，上传通知文件就能自动提取。");
+    }
+  });
+});
+
+/* 重置通关进度（换比赛时清空）*/
+function resetProgressState(){
+  clearedLevels = [false,false,false,false];
+  currentLevel = -1;
+  planChecked = [[],[],[],[]];
+}
+
+/* ===== 直接输入比赛名字：搜索匹配 ===== */
+document.getElementById("searchBtn").addEventListener("click",()=>{
+  handleNameSearch(document.getElementById("searchName").value);
+});
+document.getElementById("searchName").addEventListener("keydown",(e)=>{
+  if(e.key === "Enter") handleNameSearch(document.getElementById("searchName").value);
+});
+document.getElementById("pasteToSearchBtn").addEventListener("click",()=>{
+  showPage("pageInput");
+  // 聚焦到搜索框，方便直接输入
+  document.getElementById("searchName").focus();
+});
+
+/* ===== 链接抓取：贴链接 → 尝试抓取 → 失败则引导粘贴 → AI 抽取 ===== */
+document.getElementById("linkBackBtn").addEventListener("click",()=>{
+  showPage("pageInput");
+});
+
+document.getElementById("pasteBackBtn").addEventListener("click",()=>{
+  showPage("pageLinkForm");
+});
+
+document.getElementById("linkSubmitBtn").addEventListener("click",()=>{
+  const url = document.getElementById("linkUrl").value.trim();
+  if(!url){
+    alert("请先粘贴比赛通知的链接。");
+    return;
+  }
+  const btn = document.getElementById("linkSubmitBtn");
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "⏳ 正在尝试读取网页…";
+
+  fetchWebPage(url).then(text => {
+    btn.disabled = false;
+    btn.textContent = origText;
+    if(text && text.trim().length > 0){
+      // 抓取成功，进入 AI 抽取
+      startExtract(url, text);
+    } else {
+      // 抓不到内容，引导复制粘贴
+      guideToPaste("自动抓取没读到有效内容，可能是网页结构特殊。");
+    }
+  }).catch(err => {
+    btn.disabled = false;
+    btn.textContent = origText;
+    guideToPaste("这个网站不允许外部读取（浏览器安全限制，很常见）。");
+  });
+});
+
+document.getElementById("pasteSubmitBtn").addEventListener("click",()=>{
+  const content = document.getElementById("pasteContent").value.trim();
+  if(!content){
+    alert("请先把网页正文粘贴进来。");
+    return;
+  }
+  startExtract(null, content);
+});
+
+/* 尝试在前端直接抓取网页正文（多数网站会被 CORS 拦截，能抓到是少数） */
+async function fetchWebPage(url){
+  let full = url;
+  if(!/^https?:\/\//i.test(full)) full = "https://" + full;
+  try {
+    // 先尝试官方 CORS 代理（allorigins），它对大多数 http/https 网页能抓
+    const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(full);
+    const resp = await fetch(proxy, { signal: AbortSignal.timeout(12000) });
+    if(!resp.ok) throw new Error("proxy http " + resp.status);
+    const raw = await resp.text();
+    // 粗略剥离 HTML 标签，得到正文文字
+    const doc = new DOMParser().parseFromString(raw, "text/html");
+    doc.querySelectorAll("script,style,noscript,nav,footer,header").forEach(n=>n.remove());
+    let text = (doc.body ? doc.body.innerText : raw) || "";
+    text = text.replace(/\s+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+    return text.slice(0, 8000);
+  } catch(e){
+    // 代理也失败，再试一次直连（少数开放跨域的网站能成功）
+    try {
+      const resp2 = await fetch(full, { signal: AbortSignal.timeout(10000), mode:"cors" });
+      if(!resp2.ok) throw new Error("direct http " + resp2.status);
+      const raw2 = await resp2.text();
+      const doc2 = new DOMParser().parseFromString(raw2, "text/html");
+      doc2.querySelectorAll("script,style,noscript,nav,footer,header").forEach(n=>n.remove());
+      let text2 = (doc2.body ? doc2.body.innerText : raw2) || "";
+      text2 = text2.replace(/\s+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+      return text2.slice(0, 8000);
+    } catch(e2){
+      throw e2;
+    }
+  }
+}
+
+/* 抓取失败 → 引导复制粘贴 */
+function guideToPaste(reason){
+  document.getElementById("pasteTip").textContent = reason + " 请打开比赛通知页面，把正文复制粘贴到下面，我用 AI 帮你抽出比赛信息。";
+  document.getElementById("pasteContent").value = "";
+  showPage("pagePasteForm");
+}
+
+/* 进入 AI 抽取：先展示进度页，再调 LLM */
+function startExtract(url, text){
+  isLinkMode = true;
+  pendingExtract = { url: url, text: text };
+  resetProgressState();
+  pBossName.textContent = url ? ("正在抓取：" + url) : "正在理解你粘贴的内容…";
+  showPage("pageProgress");
+  runProgress();
+}
+
+/* ===== 文字表单：生成自定义比赛 ===== */
+document.getElementById("tfBackBtn").addEventListener("click",()=>{
+  showPage("pageInput");
+});
+
+document.getElementById("tfSubmitBtn").addEventListener("click",()=>{
+  const name = document.getElementById("tfName").value.trim();
+  if(!name){
+    alert("请先填「比赛名称」（带 * 的必填项）。");
+    return;
+  }
+  const host = document.getElementById("tfHost").value.trim();
+  const system = document.getElementById("tfSystem").value.trim();
+  const target = document.getElementById("tfTarget").value.trim();
+  const url = document.getElementById("tfUrl").value.trim();
+  const track = document.getElementById("tfTrack").value.trim();
+  const time = document.getElementById("tfTime").value.trim();
+
+  // 生成 info 数组（只保留填了的内容）
+  const info = [["主办", host || "未填写"]];
+  if(system) info.push(["赛制", system]);
+  if(target) info.push(["参赛对象", target]);
+  if(url) info.push(["报名入口", url]);
+  if(track) info.push(["赛道", track]);
+  if(time) info.push(["时间", time]);
+
+  // 关卡：按通用模板生成 4 关（游戏名 + 通用步骤）
+  const genericSteps = (stageName) => [
+    { title:"了解这关要求", hint:"点开看怎么做", how:"先搞清楚这一环节具体要你做什么、交什么、什么时候截止。把通知原文找出来，别只看二手转述。", need:"比赛通知原文、这关的提交材料清单。", note:"信息要以官方通知为准，别信道听途说的时间。" },
+    { title:"准备材料", hint:"点开看怎么做", how:"把这关要交的东西整理好：材料、作品、演示或答辩稿。先有初稿，再打磨。", need:"这一环节要求的材料文件。", note:"材料要真实、完整，缺一样都可能被退回。" },
+    { title:"按时提交 / 参加", hint:"点开看怎么做", how:"按官方通知的时间、渠道提交材料或到场参加。提前一天准备好，别卡在最后一刻。", need:"能上网的设备、准备好的材料、提醒自己别忘时间。", note:"截止时间错过就没了，务必提前设提醒。" }
+  ];
+  const levelsDetail = [
+    { gameName:"报名之门", boss:"👑 守门 Boss", real:"真实环节：报名", steps:genericSteps("报名"), plan:["找到官方报名通知","确认我符合参赛条件","准备好报名材料","完成报名"] },
+    { gameName:"初赛关卡", boss:"🛡️ 守门 Boss", real:"真实环节：初赛", steps:genericSteps("初赛"), plan:["了解初赛要交什么","把材料打磨完整","按时提交","完成初赛"] },
+    { gameName:"复赛关卡", boss:"🐉 评审 Boss", real:"真实环节：复赛", steps:genericSteps("复赛"), plan:["根据反馈完善","练熟答辩或演示","按时提交","完成复赛"] },
+    { gameName:"决赛大魔王", boss:"👹 终极 Boss", real:"真实环节：决赛", steps:genericSteps("决赛"), plan:["做最后打磨","准备好现场表现","完成决赛"] }
+  ];
+  const levels = [
+    { name:"报名", time:"" },
+    { name:"初赛", time:"" },
+    { name:"复赛", time:"" },
+    { name:"决赛", time:"" }
+  ];
+
+  currentMatch = { name:name, info:info, levels:levels, levelsDetail:levelsDetail };
+  resetProgressState();
+  pBossName.textContent = "Boss：" + name;
+  showPage("pageProgress");
+  runProgress();
+});
+
+/* ===== 示例比赛数据（教育部官方通知，2025年）===== */
+const DEMO = {
+  name: "中国国际大学生创新大赛",
+  info: [
+    ["主办", "教育部等多部委联合主办"],
+    ["赛制", "校级初赛 → 省级复赛 → 总决赛（三级赛制）"],
+    ["参赛对象", "高校在校生（在读学籍）；毕业5年内高校毕业生也可；年龄≤35岁"],
+    ["报名入口", "全国大学生创业服务网 cy.ncss.cn"],
+    ["赛道", "高教主赛道 / 青年红色筑梦之旅 / 职教赛道 / 产业赛道 / 萌芽赛道"],
+    ["时间", "4—7月报名 → 5—8月初赛复赛 → 9月总决赛（2025年示例）"]
+  ],
+  levels: [
+    { name:"报名", time:"4—7月" },
+    { name:"校级初赛", time:"5—8月" },
+    { name:"省级复赛", time:"5—8月（8月15日前）" },
+    { name:"总决赛", time:"9月" }
+  ],
+  // 关卡详情（游戏名 + 真实信息 + 任务步骤 + 计划表）
+  levelsDetail: [
+    {
+      gameName:"报名之门",
+      boss:"👑 守门 Boss",
+      real:"真实环节：参赛报名（4—7月）",
+      steps:[
+        { title:"了解赛道与组别", hint:"点开看怎么做", how:"先搞清楚这个比赛有哪些赛道（高教主赛道、职教赛道、产业赛道等），再根据你的身份和项目选一个最合适的。别急着报名，先选对赛道，后面才不白费劲。", need:"比赛通知原文、你的学籍信息、项目大概方向。", note:"只能选一个赛道报名，选了就不好改；团队负责人是学生还是老师，会影响代表的学校。" },
+        { title:"准备项目材料", hint:"点开看怎么做", how:"把项目的基本信息整理清楚：项目叫什么、解决什么问题、亮点在哪、成员是谁、指导老师是谁。先写个初稿就行，不用一次到位。", need:"项目简介、成员名单、指导老师信息。", note:"材料要真实，不能抄袭或造假，否则会被取消资格。" },
+        { title:"在官网注册报名", hint:"点开看怎么做", how:"打开全国大学生创业服务网 cy.ncss.cn，按提示注册账号、填信息、上传材料、提交报名。系统通常 5 月开放。", need:"能上网的电脑、准备好的材料文件。", note:"报名截止时间各地不同，务必以本校通知为准，别错过。" }
+      ],
+      plan:[
+        "确认我适合哪个赛道",
+        "整理好项目简介",
+        "凑齐成员和指导老师",
+        "在官网完成注册报名"
+      ]
+    },
+    {
+      gameName:"校赛守门人",
+      boss:"🛡️ 守门 Boss",
+      real:"真实环节：校级初赛（5—8月）",
+      steps:[
+        { title:"打磨项目材料", hint:"点开看怎么做", how:"校赛主要是看材料+答辩。把你的项目讲清楚：背景、痛点、你的方案、创新点、可行性。用大白话写，评委不是你这个专业的。", need:"项目计划书/PPT 初稿。", note:"材料不完整是校赛被刷的最常见原因，宁可少写也别写虚的。" },
+        { title:"准备答辩", hint:"点开看怎么做", how:"准备一段 3~5 分钟能把项目讲清楚的话，再预想几个评委可能问的问题（为什么是你、怎么做、钱从哪来）。对着镜子或找同学练几遍。", need:"PPT、讲稿、可能被问到的问题清单。", note:"表达清楚比华丽更重要，别背稿子背成念经。" },
+        { title:"参加校赛评审", hint:"点开看怎么做", how:"按学校安排提交材料、参加现场答辩。校赛通过后，学校会推荐优秀项目进省赛。", need:"按时到场、材料、答辩状态。", note:"校赛名额有限，进了校赛就认真对待，别浪费机会。" }
+      ],
+      plan:[
+        "把项目材料打磨完整",
+        "练好一段 3 分钟讲解",
+        "预想并准备评委问题",
+        "完成校赛答辩"
+      ]
+    },
+    {
+      gameName:"省赛评审团",
+      boss:"🐉 评审 Boss",
+      real:"真实环节：省级复赛（5—8月，8月15日前完成）",
+      steps:[
+        { title:"按省赛规范完善项目", hint:"点开看怎么做", how:"省赛按统一工作规范评审，要求比校赛更严。重点补强项目的创新点、落地性、团队分工。把校赛评委提的问题都改进去。", need:"校赛反馈、更新后的项目材料。", note:"省赛要学校盖章报省里，注意学校内部的时间节点。" },
+        { title:"强化答辩与路演", hint:"点开看怎么做", how:"省赛更看现场表现。把 PPT 做精、讲稿练熟、时间卡准。学会用一句话说清项目价值。", need:"精修 PPT、熟练讲稿、计时练习。", note:"省赛项目会排名次，排名靠前才有机会进总决赛。" }
+      ],
+      plan:[
+        "根据校赛反馈完善项目",
+        "把创新点和落地性讲清楚",
+        "精修 PPT 并练熟讲稿",
+        "完成省赛答辩"
+      ]
+    },
+    {
+      gameName:"总决赛大魔王",
+      boss:"👹 终极 Boss",
+      real:"真实环节：全国总决赛（9月）",
+      steps:[
+        { title:"冲刺打磨", hint:"点开看怎么做", how:"能进总决赛已经很不容易了。这阶段把项目往「成熟、能落地」方向打磨，突出成果和数据。", need:"项目成果、数据、获奖证明等。", note:"总决赛设金奖、银奖、铜奖，能走到这本身就是实力的证明。" },
+        { title:"现场比赛", hint:"点开看怎么做", how:"按总决赛安排参加现场比赛，评委评审后决出奖项。从容应对，把准备的东西讲出来。", need:"参赛材料、良好的状态。", note:"现场稳住节奏，把想讲的讲完就是胜利。" }
+      ],
+      plan:[
+        "把项目打磨到成熟可落地",
+        "准备好成果和数据展示",
+        "完成现场比赛答辩"
+      ]
+    }
+  ]
+};
+
+/* ===== 当前比赛（默认示例，用户填文字表单后可替换）===== */
+let currentMatch = DEMO;
+
+/* ===== 常见比赛库（预先核实，供「直接输入名字」匹配） ===== */
+const COMP_LIBRARY = [
+  {
+    keywords:["创新大赛","互联网+","互联网加大赛","中国国际大学生创新大赛"],
+    name:"中国国际大学生创新大赛",
+    info:[
+      ["主办","教育部、中央统战部、中央网信办、国家发展改革委、工业和信息化部、人社部、农业农村部、中科院、工程院、国家知识产权局、共青团中央等联合主办"],
+      ["赛制","校级初赛 → 省级复赛 → 总决赛（三级赛制）"],
+      ["参赛对象","高校在校生（在读学籍）；毕业5年内高校毕业生也可；年龄≤35岁"],
+      ["报名入口","全国大学生创业服务网 cy.ncss.cn"],
+      ["赛道","高教主赛道 / 青年红色筑梦之旅 / 职教赛道 / 产业赛道 / 萌芽赛道"],
+      ["时间","报名4—7月 → 初赛复赛5—8月 → 总决赛9月（以当年通知为准）"]
+    ],
+    stages:["报名","校级初赛","省级复赛","总决赛"]
+  },
+  {
+    keywords:["挑战杯","大挑","课外学术科技作品竞赛"],
+    name:"挑战杯全国大学生课外学术科技作品竞赛（大挑）",
+    info:[
+      ["主办","共青团中央、中国科协、教育部、中国社会科学院、全国学联、省级人民政府"],
+      ["赛制","校级初赛 → 省级复赛 → 全国决赛"],
+      ["参赛对象","全日制非成人教育高校在校生"],
+      ["报名入口","挑战杯官网 tiaozhanbei.net"],
+      ["赛道","自然科学类学术论文 / 哲学社科类调查报告 / 科技发明制作（另有揭榜挂帅、人工智能+专项赛）"],
+      ["时间","校赛3—4月 → 省赛5—6月 → 全国决赛10—11月（每两年一届，奇数年举办）"]
+    ],
+    stages:["校赛报名","校级初赛","省级复赛","全国决赛"]
+  },
+  {
+    keywords:["小挑","创业计划竞赛","挑战杯创业"],
+    name:"挑战杯中国大学生创业计划竞赛（小挑）",
+    info:[
+      ["主办","共青团中央、教育部、人社部、中国科协、全国学联等"],
+      ["赛制","校级初赛 → 省级复赛 → 全国决赛"],
+      ["参赛对象","全国高校全日制在校生，以及毕业3年内大学生"],
+      ["报名入口","挑战杯官网 tiaozhanbei.net"],
+      ["赛道","科技创新和未来产业 / 乡村振兴 / 社会治理 / 生态环保 / 文化创意等"],
+      ["时间","偶数年举办（与大挑交替），具体以当年通知为准"]
+    ],
+    stages:["报名组队","校级初赛","省级复赛","全国决赛"]
+  },
+  {
+    keywords:["数学建模","数模","高教社杯","国赛数模"],
+    name:"全国大学生数学建模竞赛",
+    info:[
+      ["主办","中国工业与应用数学学会"],
+      ["赛制","全国统一命题，通讯竞赛，赛区初评 + 全国复评"],
+      ["参赛对象","全日制在校本科生、高职高专学生（研究生不得参赛）"],
+      ["报名入口","中国知网竞赛管理系统 cumcm.cnki.net"],
+      ["赛道","本科组 / 高职高专组（A/B/C 题选做）"],
+      ["时间","报名6—8月，9月赛题发布，赛程约74小时（每年一届）"]
+    ],
+    stages:["报名组队","竞赛做题","赛区评阅","全国复评"]
+  },
+  {
+    keywords:["蓝桥杯","软件和信息技术","蓝桥"],
+    name:"蓝桥杯全国软件和信息技术专业人才大赛",
+    info:[
+      ["主办","工业和信息化部人才交流中心"],
+      ["赛制","省赛（选拔赛）→ 全国总决赛"],
+      ["参赛对象","全日制在校研究生、本科生、高职高专、中职中专学生"],
+      ["报名入口","蓝桥杯官网 dasai.lanqiao.cn"],
+      ["赛道","软件赛（C/C++、Java、Python等）/ 电子赛 / 人工智能赛 / 视觉艺术设计赛 / 数字科技创新赛"],
+      ["时间","省赛报名10—12月，省赛次年4月，总决赛次年6月（以当年通知为准）"]
+    ],
+    stages:["报名","省赛","全国总决赛","颁奖"]
+  },
+  {
+    keywords:["大创","创新创业训练计划","大创项目"],
+    name:"大学生创新创业训练计划（大创项目）",
+    info:[
+      ["主办","教育部（国家级）/ 各省教育厅、各高校"],
+      ["赛制","校级、省级、国家级三级立项管理"],
+      ["参赛对象","在校本科生为主（一至三年级优先，负责人须毕业前结题）"],
+      ["报名入口","学校教务/创新创业部门统一申报"],
+      ["赛道","创新训练项目 / 创业训练项目 / 创业实践项目"],
+      ["时间","各校申报时间不一，一般每年3—5月申报、次年结题（周期1—2年）"]
+    ],
+    stages:["选题组队","项目申报","立项实施","结题验收"]
+  }
+];
+
+/* 在比赛库里模糊匹配用户输入的名字 */
+function searchComp(query){
+  const q = (query||"").trim().toLowerCase();
+  if(!q) return [];
+  const hits = [];
+  COMP_LIBRARY.forEach((comp,idx)=>{
+    // 精确包含：关键词/名称 里整体包含用户输入，或用户输入整体包含某个关键词
+    const kwHit = (comp.keywords||[]).some(k=>k.toLowerCase().includes(q));
+    const nameHit = comp.name.toLowerCase().includes(q);
+    const qHitKw = (comp.keywords||[]).some(k=>q.includes(k.toLowerCase()));
+    const qHitName = q.includes(comp.name.toLowerCase());
+    if(kwHit || nameHit || qHitKw || qHitName){
+      hits.push({comp:comp, idx:idx});
+    }
+  });
+  return hits;
+}
+
+/* 从比赛库结果构建 currentMatch */
+function buildMatchFromComp(comp){
+  const info = comp.info.map(([k,v])=>[k,v]);
+  const stages = comp.stages && comp.stages.length ? comp.stages.slice(0,4) : ["报名","初赛","复赛","决赛"];
+  const levels = stages.map(s=>({name:s, time:""}));
+  const levelsDetail = genericLevelsDetail(stages);
+  return { name:comp.name, info:info, levels:levels, levelsDetail:levelsDetail };
+}
+
+/* ===== 后端实时搜索：调 /api/search 搜全网 ===== */
+async function searchOnline(query){
+  const q = (query||"").trim();
+  if(!q) return null;
+  const endpoint = (window.location.origin || "http://127.0.0.1:3000") + "/api/search";
+  try {
+    const resp = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: q }),
+    });
+    const json = await resp.json();
+    if(!json.ok){
+      // not_configured：还没配 key；search_failed：搜索失败。都返回 null 走兜底
+      return { configured:false, error: json.error, message: json.message || "" };
+    }
+    const results = (json.results || []).filter(r => r.title || r.snippet);
+    if(results.length === 0){
+      return { configured:true, error:"no_result", message:"没有搜到相关结果", results:[] };
+    }
+    return { configured:true, results:results };
+  } catch(e){
+    // 网络错误 / 后端没起来 → 走兜底
+    return { configured:false, error:"network", message:"后端搜索暂时不可用" };
+  }
+}
+
+/* 把实时搜索结果 + 比赛名，交给 LLM 整理成 currentMatch */
+async function resultsToMatch(query, results){
+  if(!cloudReady || !cloud){
+    return null;
+  }
+  const summary = results.map((r,i)=>{
+    let s = "[" + (i+1) + "] " + (r.title || "");
+    if(r.date) s += "（时间：" + r.date + "）";
+    if(r.snippet) s += "\n摘要：" + r.snippet;
+    if(r.url) s += "\n来源：" + r.url;
+    return s;
+  }).join("\n\n");
+
+  const systemPrompt = "你是一个严谨的比赛信息整理助手。下面会给你「某个比赛的实时搜索结果」（多条网页标题+摘要+时间+来源）。请综合这些真实搜索到的信息，整理出这个比赛的关键信息。\n\n必须遵守：\n1. 只依据搜索结果里明确写到的内容，没有提到的字段一律填「未核实」，绝不编造、不推测、不凭记忆补。\n2. 如果搜索结果是往届信息，或信息不完整，如实填「未核实」，不要硬编。\n3. 输出必须是合法 JSON，不要输出 JSON 以外的文字。\n4. 比赛名称取官方正式名称。\n\n输出 JSON 结构（字段名固定）：\n{\n  \"name\": \"比赛官方名称\",\n  \"host\": \"主办方\",\n  \"system\": \"赛制/流程\",\n  \"target\": \"参赛对象\",\n  \"url\": \"报名入口\",\n  \"track\": \"赛道/组别\",\n  \"time\": \"时间安排\",\n  \"stages\": [\"环节1\",\"环节2\",\"环节3\",\"环节4\"]\n}\nstages 尽量整理出实际环节，凑不满按实际数量填，没有就填空数组 []。";
+
+  const userPrompt = "用户想了解的比赛是：「" + query + "」。\n\n以下是实时搜索到的结果，请综合整理：\n\n" + summary;
+
+  // 用 AbortController 做超时保护，防止 LLM 卡死导致按钮一直转圈
+  const controller = new AbortController();
+  const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 25000);
+
+  try {
+    let models = [];
+    try { models = await cloud.llm.models.list(); } catch(e){ models = []; }
+    let model = null;
+    if(models && models.length){
+      const usable = models.filter(m => m.disabled !== true && !/^(auto|default)$/i.test(m.id||""));
+      model = usable[0] || models.find(m => m.disabled !== true) || models[0];
+    }
+    const modelId = model && model.id ? model.id : "deepseek-v4-pro";
+
+    let answer = "";
+    const stream = cloud.llm.chat.completions.create({
+      model: modelId,
+      messages: [
+        { role:"system", content: systemPrompt },
+        { role:"user", content: userPrompt }
+      ],
+      stream: true,
+      response_format: { type:"json_object" },
+      signal: controller.signal
+    });
+    for await (const chunk of stream){
+      const delta = chunk.choices && chunk.choices[0] ? chunk.choices[0].delta : null;
+      if(delta && delta.content) answer += delta.content;
+    }
+
+    clearTimeout(timeout);
+
+    let parsed = null;
+    try { parsed = JSON.parse(answer); }
+    catch(e){
+      const m = answer.match(/\{[\s\S]*\}/);
+      if(m){ try { parsed = JSON.parse(m[0]); } catch(e2){ parsed = null; } }
+    }
+    return parsed;
+  } catch(err){
+    clearTimeout(timeout);
+    console.error("resultsToMatch error:", err);
+    return null;
+  }
+}
+
+/* 处理「直接输入比赛名字」的查询：优先实时联网搜索，失败回退预置库 */
+async function handleNameSearch(query){
+  const q = (query||"").trim();
+  if(!q){
+    alert("请先输入比赛名字。");
+    return;
+  }
+
+  // 提示正在搜索
+  const btn = document.getElementById("searchBtn");
+  const oldTxt = btn.textContent;
+  btn.textContent = "🔍 正在搜索…";
+  btn.disabled = true;
+
+  // 1) 先试实时联网搜索
+  const online = await searchOnline(q);
+
+  if(online && online.configured && online.results && online.results.length){
+    // 搜到了：用 LLM 整理
+    btn.textContent = "🤖 正在整理…";
+    const parsed = await resultsToMatch(q, online.results);
+    btn.textContent = oldTxt;
+    btn.disabled = false;
+
+    if(parsed && parsed.name){
+      // 给用户一个明确提示：这是实时搜索整理的结果
+      applyExtractedFromSearch(parsed, online.results);
+      return;
+    }
+    // LLM 整理失败/超时 → 直接用原始搜索结果展示（信息仍是实时的）
+    applyRawResults(q, online.results);
+    return;
+  }
+
+  btn.textContent = oldTxt;
+  btn.disabled = false;
+
+  // 2) 实时搜索不可用（没配 key / 网络失败 / 无结果）→ 回退预置库
+  fallbackToLibrary(q);
+}
+
+/* 降级：LLM 整理失败时，直接把实时搜索结果原文展示（不编造、仍是实时信息） */
+function applyRawResults(query, results){
+  const info = [];
+  // 把每条搜索结果作为一条信息展示，标题 + 摘要
+  results.slice(0, 6).forEach((r, i) => {
+    const title = r.title || ("搜索结果 " + (i+1));
+    const snippet = r.snippet ? r.snippet.slice(0, 120) : "";
+    info.push([title, snippet || "（点击参考来源查看原文）"]);
+  });
+  const srcUrls = results.filter(r=>r.url).slice(0,3).map(r=>r.url);
+  if(srcUrls.length){
+    info.push(["参考来源", srcUrls.join(" · ")]);
+  }
+
+  currentMatch = {
+    name: query,
+    info: info,
+    levels: [{name:"了解要求",time:""},{name:"准备材料",time:""},{name:"按时提交",time:""},{name:"完成",time:""}],
+    levelsDetail: genericLevelsDetail(["了解要求","准备材料","按时提交","完成"]),
+    isRealtime: true,
+    isRaw: true
+  };
+  resetProgressState();
+  pBossName.textContent = "Boss：" + currentMatch.name;
+  renderIntel();
+  showPage("pageIntel");
+}
+
+/* 把实时搜索结果整理出的信息，展示并带上「实时」标注 */
+function applyExtractedFromSearch(p, rawResults){
+  const info = [];
+  if(p.host && p.host !== "未核实") info.push(["主办", p.host]);
+  if(p.system && p.system !== "未核实") info.push(["赛制", p.system]);
+  if(p.target && p.target !== "未核实") info.push(["参赛对象", p.target]);
+  if(p.url && p.url !== "未核实") info.push(["报名入口", p.url]);
+  if(p.track && p.track !== "未核实") info.push(["赛道", p.track]);
+  if(p.time && p.time !== "未核实") info.push(["时间", p.time]);
+
+  const stages = (Array.isArray(p.stages) && p.stages.length ? p.stages : ["报名","初赛","复赛","决赛"]).slice(0,4);
+  while(stages.length < 4) stages.push("后续环节");
+
+  const name = (p.name && p.name !== "未核实") ? p.name : "未命名比赛";
+
+  // 附上搜索到的来源链接（最多 3 条，供用户核对）
+  const srcUrls = (rawResults||[]).filter(r=>r.url).slice(0,3).map(r=>r.url);
+  if(srcUrls.length){
+    info.push(["参考来源", srcUrls.join(" · ")]);
+  }
+
+  const levels = stages.map(s => ({ name:s, time:"" }));
+  const levelsDetail = genericLevelsDetail(stages);
+
+  currentMatch = { name:name, info:info.length ? info : [["主办","未核实"]], levels:levels, levelsDetail:levelsDetail, isRealtime:true };
+  resetProgressState();
+  pBossName.textContent = "Boss：" + currentMatch.name;
+  renderIntel();
+  showPage("pageIntel");
+}
+
+/* 回退：用预置比赛库匹配 */
+function fallbackToLibrary(q){
+  const hits = searchComp(q);
+  if(hits.length === 0){
+    alert("联网搜索暂不可用，而且常见比赛库里也没找到「"+q+"」。\n\n目前库里收录了：创新大赛（互联网+）、挑战杯（大挑/小挑）、数学建模、蓝桥杯、大创项目等。\n\n你可以点「文字」方式手动填写，或「粘贴正文」让 AI 帮你整理。");
+    return;
+  }
+  currentMatch = buildMatchFromComp(hits[0].comp);
+  resetProgressState();
+  pBossName.textContent = "Boss：" + currentMatch.name;
+  renderIntel();
+  showPage("pageIntel");
+}
+function genericLevelsDetail(stageNames){
+  // 根据真实环节名（报名/初赛/复赛/决赛等）生成 4 关的详情
+  const icons = ["👑","🛡️","🐉","👹"];
+  const bossNames = ["守门 Boss","守门 Boss","评审 Boss","终极 Boss"];
+  const names = stageNames && stageNames.length === 4 ? stageNames : ["报名","初赛","复赛","决赛"];
+  return names.map((nm,i)=>{
+    const steps = [
+      { title:"了解这关要求", hint:"点开看怎么做", how:"先搞清楚这一环节具体要你做什么、交什么、什么时候截止。把通知原文找出来，别只看二手转述。", need:"比赛通知原文、这关的提交材料清单。", note:"信息要以官方通知为准，别信道听途说的时间。" },
+      { title:"准备材料", hint:"点开看怎么做", how:"把这关要交的东西整理好：材料、作品、演示或答辩稿。先有初稿，再打磨。", need:"这一环节要求的材料文件。", note:"材料要真实、完整，缺一样都可能被退回。" },
+      { title:"按时提交 / 参加", hint:"点开看怎么做", how:"按官方通知的时间、渠道提交材料或到场参加。提前一天准备好，别卡在最后一刻。", need:"能上网的设备、准备好的材料、提醒自己别忘时间。", note:"截止时间错过就没了，务必提前设提醒。" }
+    ];
+    const plan = ["找到官方"+nm+"通知","确认我符合条件","准备好材料","完成"+nm];
+    return { gameName:nm+"之门", boss:icons[i]+" "+bossNames[i], real:"真实环节："+nm, steps:steps, plan:plan };
+  });
+}
+
+async function doExtract(url, text){
+  if(!cloudReady || !cloud){
+    // 云服务没加载成功 → 明确告知，回退到让用户手动填文字表单
+    alert("AI 能力暂时没加载成功（可能是网络或云服务没就绪）。\n\n你可以先点「返回」，用「文字」方式手动填写比赛信息，流程照样能走通。");
+    showPage("pageLinkForm");
+    return;
+  }
+
+  const btnHint = document.getElementById("pBored");
+  btnHint.textContent = "🤖 AI 正在从正文里提取比赛信息…";
+
+  const systemPrompt = "你是一个严谨的比赛信息整理助手。你的任务是从用户提供的网页正文里，提取一个「项目答辩制竞赛」的关键信息。\n\n必须遵守：\n1. 只依据正文里明确写到的内容填写，正文没有提到的，一律填「未核实」，绝不编造、不推测。\n2. 如果正文整体不是一份比赛/竞赛通知，请在 name 字段里说明「这看起来不是一份比赛通知」。\n3. 输出必须是合法 JSON，不要输出任何 JSON 以外的文字。\n4. 比赛名称只取官方正式名称，不要自己起名。\n\n输出 JSON 结构（字段名固定）：\n{\n  \"name\": \"比赛官方名称\",\n  \"host\": \"主办方\",\n  \"system\": \"赛制/流程（如校赛→省赛→总决赛）\",\n  \"target\": \"参赛对象\",\n  \"url\": \"报名入口网址或渠道\",\n  \"track\": \"赛道/组别\",\n  \"time\": \"时间安排\",\n  \"stages\": [\"环节1\",\"环节2\",\"环节3\",\"环节4\"]\n}\n其中 stages 尽量整理出比赛的实际环节（报名、初赛、复赛、决赛等），凑不满 4 个就按实际数量填，没有就填空数组 []。";
+
+  const userPrompt = (url ? "比赛通知链接是：" + url + "\n\n" : "") + "以下是网页正文，请提取比赛信息：\n\n" + text;
+
+  try {
+    let models = [];
+    try { models = await cloud.llm.models.list(); } catch(e){ models = []; }
+    let model = null;
+    if(models && models.length){
+      // 跳过 auto/default 这类占位 id，选第一个真实可用的模型
+      const usable = models.filter(m => m.disabled !== true && !/^(auto|default)$/i.test(m.id||""));
+      model = usable[0] || models.find(m => m.disabled !== true) || models[0];
+    }
+    const modelId = model && model.id ? model.id : "deepseek-v4-pro";
+
+    let answer = "";
+    const stream = cloud.llm.chat.completions.create({
+      model: modelId,
+      messages: [
+        { role:"system", content: systemPrompt },
+        { role:"user", content: userPrompt }
+      ],
+      stream: true,
+      response_format: { type:"json_object" }
+    });
+    for await (const chunk of stream){
+      const delta = chunk.choices && chunk.choices[0] ? chunk.choices[0].delta : null;
+      if(delta && delta.content) answer += delta.content;
+    }
+
+    // 解析 JSON
+    let parsed = null;
+    try {
+      parsed = JSON.parse(answer);
+    } catch(e){
+      // 可能模型在 JSON 外还带了文字，尝试提取第一个 { 到最后一个 }
+      const m = answer.match(/\{[\s\S]*\}/);
+      if(m){ try { parsed = JSON.parse(m[0]); } catch(e2){ parsed = null; } }
+    }
+
+    if(!parsed){
+      throw new Error("模型返回内容无法解析为结构化信息");
+    }
+
+    applyExtracted(parsed);
+
+  } catch(err){
+    console.error("doExtract error:", err);
+    alert("AI 抽取失败了：" + (err && err.message ? err.message : "未知错误") + "\n\n你可以点「返回」，用「文字」方式手动填写，或再试一次。");
+    showPage("pageLinkForm");
+  }
+}
+
+/* 把 AI 抽出的信息映射成 currentMatch 结构 */
+function applyExtracted(p){
+  const info = [];
+  if(p.host && p.host !== "未核实") info.push(["主办", p.host]);
+  if(p.system && p.system !== "未核实") info.push(["赛制", p.system]);
+  if(p.target && p.target !== "未核实") info.push(["参赛对象", p.target]);
+  if(p.url && p.url !== "未核实") info.push(["报名入口", p.url]);
+  if(p.track && p.track !== "未核实") info.push(["赛道", p.track]);
+  if(p.time && p.time !== "未核实") info.push(["时间", p.time]);
+
+  const stages = (Array.isArray(p.stages) && p.stages.length ? p.stages : ["报名","初赛","复赛","决赛"]).slice(0,4);
+  while(stages.length < 4) stages.push("后续环节");
+
+  const name = (p.name && p.name !== "未核实") ? p.name : "未命名比赛";
+
+  const levels = stages.map(s => ({ name:s, time:"" }));
+  const levelsDetail = genericLevelsDetail(stages);
+
+  currentMatch = { name:name, info:info.length ? info : [["主办","未核实"]], levels:levels, levelsDetail:levelsDetail };
+  renderIntel();
+  showPage("pageIntel");
+}
+
+/* 渲染副本情报 */
+function renderIntel(){
+  document.getElementById("intelName").textContent = currentMatch.name || "未命名比赛";
+  // 实时搜索标识
+  const badge = document.getElementById("intelBadge");
+  if(currentMatch.isRealtime){
+    badge.style.display = "block";
+    badge.innerHTML = '<span>⚡ 实时联网搜索 · 已按最新信息整理</span>';
+  } else {
+    badge.style.display = "none";
+    badge.innerHTML = "";
+  }
+  document.getElementById("intelRows").innerHTML = currentMatch.info.map(([k,v])=>{
+    // 参考来源：可能是多个网址用 · 分隔，逐个做成链接
+    if(k === "参考来源"){
+      const urls = v.split("·").map(s=>s.trim()).filter(Boolean);
+      const links = urls.map((u,i)=>{
+        const href = /^https?:\/\//i.test(u) ? u : "https://" + u;
+        return '<a href="'+href+'" target="_blank" rel="noopener" style="color:#4dd8e0;text-decoration:underline;display:inline-block;margin:2px 4px 2px 0;">来源'+(i+1)+' ↗</a>';
+      });
+      return '<div class="intel-row"><div class="k">'+k+'</div><div class="v">'+links.join("")+'</div></div>';
+    }
+    // 报名入口：如果是网址（含 . 或 / 或 http）就做成可点击链接，否则纯文本
+    if(k === "报名入口" && v && v !== "未填写"){
+      const looksUrl = /^https?:\/\//i.test(v) || /[a-zA-Z0-9]+\.[a-zA-Z]{2,}/.test(v) || v.includes("/");
+      if(looksUrl){
+        const href = /^https?:\/\//i.test(v) ? v : "https://" + v;
+        return '<div class="intel-row"><div class="k">'+k+'</div><div class="v"><a href="'+href+'" target="_blank" rel="noopener" style="color:#4dd8e0;text-decoration:underline;">'+v+' ↗</a></div></div>';
+      }
+    }
+    return '<div class="intel-row"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+  }).join("");
+  document.getElementById("intelLevels").innerHTML = currentMatch.levels.map((lv,i)=>
+    '<div class="lv"><span class="n">'+(i+1)+'</span><span>'+lv.name+'</span><span style="color:rgba(255,255,255,.55);font-size:12px;margin-left:auto;">'+lv.time+'</span></div>'
+  ).join("");
+}
+renderIntel();
+
+document.getElementById("intelOkBtn").addEventListener("click",()=>{
+  showPage("pageEquip");
+});
+// 情报页返回 → 进度页
+document.getElementById("intelBackBtn").addEventListener("click",()=>{
+  showPage("pageProgress");
+});
+
+/* ===== 选装备 ===== */
+let equip = { edu:null, grade:null, major:null, time:null };
+const GRADE_MAP = { "专科":["大一","大二","大三"], "本科":["大一","大二","大三","大四"], "研究生":["研一","研二","研三"] };
+
+function bindEqGroup(containerId, key){
+  document.getElementById(containerId).addEventListener("click",(e)=>{
+    const t = e.target.closest(".eq-opt");
+    if(!t) return;
+    document.getElementById(containerId).querySelectorAll(".eq-opt").forEach(o=>o.classList.remove("on"));
+    t.classList.add("on");
+    equip[key] = t.dataset.v;
+    if(key==="edu"){ equip.grade=null; renderGrade(); }
+  });
+}
+bindEqGroup("eduOpts","edu");
+bindEqGroup("majorOpts","major");
+bindEqGroup("timeOpts","time");
+
+function renderGrade(){
+  const field = document.getElementById("gradeField");
+  const box = document.getElementById("gradeOpts");
+  if(!equip.edu){ field.style.display="none"; box.innerHTML=""; return; }
+  field.style.display="block";
+  const grades = GRADE_MAP[equip.edu] || [];
+  box.innerHTML = grades.map(g=>'<div class="eq-opt" data-v="'+g+'"><span class="gicon">⭐</span>'+g+'</div>').join("");
+}
+
+// 绑定年级点击（gradeOpts 是动态生成的，单独用事件委托绑定一次）
+document.getElementById("gradeOpts").addEventListener("click",(e)=>{
+  const t = e.target.closest(".eq-opt");
+  if(!t) return;
+  document.querySelectorAll("#gradeOpts .eq-opt").forEach(o=>o.classList.remove("on"));
+  t.classList.add("on");
+  equip.grade = t.dataset.v;
+});
+
+document.getElementById("equipDoneBtn").addEventListener("click",()=>{
+  renderEval();
+  showPage("pageEval");
+});
+
+// 选装备页：不选装备直接进入
+document.getElementById("equipSkipBtn").addEventListener("click",()=>{
+  equip = { edu:null, grade:null, major:null, time:null };
+  renderMap();
+  showPage("pageMap");
+});
+// 选装备页返回 → 情报页
+document.getElementById("equipBackBtn").addEventListener("click",()=>{
+  showPage("pageIntel");
+});
+
+/* ===== 装备测评页 ===== */
+/* ===== 真人经验库（来自知乎/小红书/B站等公开分享，仅供参考）===== */
+const EXP_LIBRARY = {
+  // 按学历给建议
+  edu: {
+    "专科": [
+      { title:"走「职教赛道」更对口", text:"过来人反复提醒：专科生别去高教主赛道硬刚，职教赛道才是主场——它比的就是实操、工艺改良、技能创业，竞争也相对友好。", src:"综合多位参赛者分享" },
+      { title:"先抱大腿，别单干", text:"没有资源时，最快的方式是加入学长学姐的成熟项目，先熟悉整套流程，第二年再自己带队。", src:"综合参赛者经验" }
+    ],
+    "本科": [
+      { title:"大二是最佳发力期", text:"多数过来人建议：大一先跟队当陪跑、攒经验，大二全力冲一次。选题别硬凑，从自己专业、实验室成果或身边真实需求出发，项目才有根基。", src:"综合多位参赛者分享" },
+      { title:"组队结构比人数重要", text:"别只找室友。最优 5 人：技术 1 人 + 商业运营 1 人 + 文案 1 人 + 设计 1 人 + 主讲答辩 1 人，跨专业互补。", src:"新手避坑指南" }
+    ],
+    "研究生": [
+      { title:"研究生是加分项，冲高奖有优势", text:"研究生可报研究生组别，也能带队。手里有实验室成果、论文、专利的话，起点就比别人高，可以瞄准省奖、国奖。", src:"综合参赛者分享" },
+      { title:"把「成果落地」做扎实", text:"评委最看重「真实感」——实验数据、测试报告、专利证书、真实用户反馈，比漂亮的宏观数据更能打动人。", src:"国创赛备赛干货" }
+    ]
+  },
+  // 按专业给建议
+  major: {
+    "理工": { title:"技术类项目是你的主场", text:"硬科技类（芯片、AI、新材料等）最容易冲高奖，但必须「技术有壁垒 + 落地有证据」——拿不出实验数据、专利的创新，评委只当你在说大话。", src:"综合参赛者分享" },
+    "计算机/信息": { title:"AI 应用是热门方向", text:"人工智能 + 具体场景（医疗、教育、农业）是近年高分方向，但别做「纯脑洞」，要有原型、有数据、有真实用户。", src:"综合参赛者分享" },
+    "经管": { title:"商业维度你能加分", text:"项目的商业模式、盈利闭环、财务测算正是你的强项。很多理工团队就缺一个「能把钱讲清楚」的人。", src:"综合参赛者分享" },
+    "文史哲": { title:"走「红旅赛道」更顺", text:"文科生主攻红旅赛道（乡村振兴、非遗、社区服务），比的是社会价值、基层实践、情怀故事，比硬科技更友好。", src:"新手避坑指南" },
+    "艺术/设计": { title:"设计+PPT 是你的硬通货", text:"路演 PPT、1 分钟视频、产品视觉，是评委第一眼的印象分。一个会做设计的队友，团队抢着要。", src:"综合参赛者分享" },
+    "医学": { title:"新医科方向有政策红利", text:"医疗健康、辅助诊断、智慧养老都是政策风口方向，结合你的一线临床/实验室资源，容易做出「真实感」。", src:"综合参赛者分享" },
+    "农学": { title:"乡村振兴 + 助农是你的天然题材", text:"农产品电商、乡村文旅、农业检测装置，都是落地难度低、社会价值高的方向，评委很吃「真落地」这一套。", src:"新手避坑指南" },
+    "法学": { title:"法律/合规角度能补团队短板", text:"知识产权的合规、股权结构、风险规避，正是很多技术团队容易踩坑的地方，你的专业能补上这块。", src:"综合参赛者分享" },
+    "教育学": { title:"教育 + 公益方向有空间", text:"教育公益、技能培训类项目在红旅赛道有发挥空间，讲清「帮助了多少人」比讲「技术多牛」更重要。", src:"综合参赛者分享" },
+    "体育": { title:"体育 + 科技是差异化切口", text:"运动训练、健康监测、体育装备改良，结合科技能做出差异化，避开红海选题。", src:"综合参赛者分享" },
+    "外语": { title:"国际传播/跨文化是独特优势", text:"项目「走出去」、对接国际资源、翻译海外案例，是你的独特技能，很多团队想不到这层。", src:"综合参赛者分享" },
+    "其他": { title:"不限专业，讲清「价值」就够", text:"比赛不限专业。别被「对不对口」限制住，把「解决了什么真问题、带来什么价值」讲清楚，比专业对口更重要。", src:"综合参赛者分享" }
+  },
+  // 按时间给建议
+  time: {
+    "很少": { title:"时间紧，重点在「抱团 + 抓重点」", text:"过来人提醒：这个比赛周期长（报名到总决赛好几个月），时间少的话，一定找靠谱队友分担，自己只盯最关键的节点（报名、材料、路演），别想面面俱到。", src:"综合参赛者分享" },
+    "一般": { title:"节奏稳，能走下来", text:"每周 5~15 小时属于能稳定推进的节奏。过来人建议提前 3~6 个月开始，把选题和材料打磨的时间留够，别赶 DDL。", src:"综合参赛者分享" },
+    "充足": { title:"时间充裕，把细节做扎实", text:"时间充足是你的优势。可以多看往届金奖路演视频、多模拟答辩，把「真实感」做足——评委一眼就能看出你是不是真下了功夫。", src:"综合参赛者分享" }
+  },
+  // 通用（不管选没选装备都给）
+  common: [
+    { title:"选题是生死线", text:"过来人一致认为：选题选对赢一半。避雷「校园二手、跑腿、通用 APP、纯脑洞」这些同质化选题，优先「国家战略 + 具体场景 + 真实落地」。", src:"综合参赛者分享" },
+    { title:"这是场「PPT 大赛」", text:"评委第一眼看到的是 PPT 和路演，不是你的产品。很多项目产品扎实，却死在 PPT 像 Word 文档。一页一个核心观点，多用图表少堆字。", src:"多位参赛者共同提醒" }
+  ]
+};
+
+function renderEval(){
+  const hasEquip = equip.edu || equip.major || equip.time;
+  // 装备摘要
+  const gearParts = [];
+  if(equip.edu) gearParts.push("🛡️ " + equip.edu + (equip.grade ? "·"+equip.grade : ""));
+  if(equip.major) gearParts.push("🎯 " + equip.major);
+  if(equip.time) gearParts.push("🔋 " + equip.time);
+  document.getElementById("evalGear").textContent = gearParts.length ? "你的装备：" + gearParts.join("　") : "未选装备";
+
+  // 逐条比对（委婉语气）
+  const items = [];
+
+  // 1. 学历/年级
+  if(equip.edu){
+    const eduText = "这个比赛面向高校在校生（含专科、本科、研究生），也接受毕业5年内的毕业生。";
+    let tag = "ok", txt = eduText;
+    if(equip.edu === "研究生"){
+      txt = eduText + "你作为研究生，可以报研究生组别，也能带团队，是加分项。";
+    } else if(equip.edu === "专科"){
+      txt = eduText + "专科可以走「职教赛道」，反而更对口，这条赛道竞争相对友好一些。";
+    } else {
+      txt = eduText + "本科生是主力人群，选择面比较广。";
+    }
+    items.push({ title:"🛡️ 初始身份", tag:tag, text:txt, why:"依据：比赛「参赛对象」+ 你的学历「"+equip.edu+"」。" });
+  } else {
+    items.push({ title:"🛡️ 初始身份", tag:"none", text:"你没有填身份，这里就不替你判断了。", why:"你没选装备，这部分先跳过。" });
+  }
+
+  // 2. 专业
+  if(equip.major){
+    let txt = "这个比赛本身不限专业，任何专业都能参加。";
+    let tag = "ok";
+    if(["理工","计算机/信息"].includes(equip.major)){
+      txt = "你的方向（"+equip.major+"）和技术类、创新类项目比较对得上，做起项目来会顺手一些。";
+    } else {
+      txt = "你的方向（"+equip.major+"）也能参加——比赛不限专业，只要项目讲得清楚就行，别被「是不是对口」限制住。";
+    }
+    items.push({ title:"🎯 擅长方向", tag:tag, text:txt, why:"依据：比赛「不限专业」+ 你的专业「"+equip.major+"」。" });
+  } else {
+    items.push({ title:"🎯 擅长方向", tag:"none", text:"没填专业，这里不判断。", why:"你没选装备。" });
+  }
+
+  // 3. 精力值
+  if(equip.time){
+    let txt, tag, why;
+    if(equip.time === "很少"){
+      txt = "这个比赛周期比较长（从报名到总决赛好几个月），你的每周时间偏少，可能到中后期会有点吃紧，建议提前把时间挤一挤、或者找靠谱队友分担。";
+      tag = "warn";
+      why = "依据：比赛周期长 vs 你的每周时间「"+equip.time+"」——这里需要你心里有数。";
+    } else if(equip.time === "一般"){
+      txt = "每周 5~15 小时，属于能稳定推进的节奏，只要把关键节点守住，是能走下来的。";
+      tag = "ok";
+      why = "依据：比赛节奏 vs 你的每周时间「"+equip.time+"」。";
+    } else {
+      txt = "每周 15 小时以上，时间很充裕，可以放心把每个环节都做扎实。";
+      tag = "ok";
+      why = "依据：比赛节奏 vs 你的每周时间「"+equip.time+"」。";
+    }
+    items.push({ title:"🔋 精力值", tag:tag, text:txt, why:why });
+  } else {
+    items.push({ title:"🔋 精力值", tag:"none", text:"没填时间，这里不判断。", why:"你没选装备。" });
+  }
+
+  // 汇总结论
+  const hasWarn = items.some(it=>it.tag==="warn");
+  const anyFilled = items.some(it=>it.tag!=="none");
+  if(!anyFilled){
+    document.getElementById("evalTag").textContent = "未做测评";
+    document.getElementById("evalSummaryText").textContent = "你还没选装备，就先带你走一遍流程，不做适配判断。";
+  } else if(hasWarn){
+    document.getElementById("evalTag").textContent = "整体能参加，个别地方留意";
+    document.getElementById("evalSummaryText").textContent = "你的情况和这个比赛整体能对上，只有精力这一块可能需要提前安排。别被吓到，提前规划就好。";
+  } else {
+    document.getElementById("evalTag").textContent = "匹配比较顺";
+    document.getElementById("evalSummaryText").textContent = "你的情况和这个比赛比较对得上，可以把主要精力放在「把每一关的流程走扎实」上。";
+  }
+
+  const tagName = { ok:"匹配", warn:"留意", none:"未填" };
+  const tagCls = { ok:"tag-ok", warn:"tag-warn", none:"tag-none" };
+  document.getElementById("evalItems").innerHTML = items.map(it=>
+    '<div class="eval-item">'+
+      '<div class="ei-title">'+it.title+'<span class="tag '+tagCls[it.tag]+'">'+tagName[it.tag]+'</span></div>'+
+      '<div class="ei-text">'+it.text+'</div>'+
+      '<div class="ei-why">'+it.why+'</div>'+
+    '</div>'
+  ).join("");
+}
+
+/* ===== 渲染「过来人经验」独立页（单列，一行一条）===== */
+function renderExp(){
+  const expList = [];
+  if(equip.edu && EXP_LIBRARY.edu[equip.edu]) expList.push(...EXP_LIBRARY.edu[equip.edu]);
+  if(equip.major && EXP_LIBRARY.major[equip.major]) expList.push(EXP_LIBRARY.major[equip.major]);
+  if(equip.time && EXP_LIBRARY.time[equip.time]) expList.push(EXP_LIBRARY.time[equip.time]);
+  expList.push(...EXP_LIBRARY.common);
+  const seen = new Set();
+  const finalExp = expList.filter(e=>{ if(seen.has(e.title)) return false; seen.add(e.title); return true; });
+
+  document.getElementById("expPageMatch").textContent = currentMatch.name || "当前比赛";
+  document.getElementById("expPageList").innerHTML = finalExp.map(e=>
+    '<div class="exp-card">'+
+      '<div class="ex-title">💡 '+e.title+'</div>'+
+      '<div class="ex-text">'+e.text+'</div>'+
+      '<div class="ex-src">来源：'+e.src+'</div>'+
+    '</div>'
+  ).join("");
+  document.getElementById("expPageNote").textContent =
+    "以上是参赛选手的公开经验分享，会随时间和赛道变化，仅供参考，请以官方通知为准。";
+}
+
+document.getElementById("evalGoBtn").addEventListener("click",()=>{
+  renderMap();
+  showPage("pageMap");
+});
+
+// 测评页 → 看过来人经验
+document.getElementById("evalExpBtn").addEventListener("click",()=>{
+  renderExp();
+  showPage("pageExp");
+});
+// 过来人经验页 → 返回测评
+document.getElementById("expBackBtn").addEventListener("click",()=>{
+  showPage("pageEval");
+});
+document.getElementById("evalBackBtn").addEventListener("click",()=>{
+  showPage("pageEquip");
+});
+
+// 进度页返回 → 输入页
+document.getElementById("progBackBtn").addEventListener("click",()=>{
+  if(progTimer) clearInterval(progTimer);
+  showPage("pageInput");
+});
+
+/* ===== 进度条 ===== */
+const BORED=["正在翻看报名通知…","检查比赛是不是项目答辩制…","看看要打几关…","确认每关要交什么材料…","给 Boss 画像中…","快好了，别眨眼 👀","情报到手，正在整理…","马上就能出发了…"];
+let progTimer=null;
+let isLinkMode=false;
+let pendingExtract=null;
+function runProgress(){
+  const bar=document.getElementById("pBar"), pct=document.getElementById("pPercent"),
+        timeEl=document.getElementById("pTime"), bored=document.getElementById("pBored");
+  const total=5000, start=Date.now(); let boredIdx=0;
+  bored.textContent=BORED[0];
+  if(progTimer) clearInterval(progTimer);
+  progTimer=setInterval(()=>{
+    const el=Date.now()-start;
+    let p=Math.min(100,Math.round(el/total*100));
+    bar.style.width=p+"%"; pct.textContent=p+"%";
+    timeEl.textContent="预计等待约 "+Math.max(1,Math.ceil((total-el)/1000))+" 秒";
+    const bi=Math.floor(el/800);
+    if(bi!==boredIdx && bi<BORED.length){ boredIdx=bi; bored.textContent=BORED[bi]; }
+    if(p>=100){
+      clearInterval(progTimer);
+      bored.textContent="✅ 情报收集完成！";
+      timeEl.textContent="已完成";
+      // 1 秒后进入副本情报页（重新渲染情报）
+      setTimeout(()=>{
+        if(isLinkMode && pendingExtract){
+          // 链接/粘贴模式：真正调 AI 抽取
+          isLinkMode = false;
+          doExtract(pendingExtract.url, pendingExtract.text);
+          pendingExtract = null;
+        } else {
+          renderIntel();
+          showPage("pageIntel");
+        }
+      }, 900);
+    }
+  },100);
+}
+
+/* ===== 关卡地图 ===== */
+let clearedLevels = [false,false,false,false];
+let currentLevel = -1;
+
+function renderMap(){
+  const track = document.getElementById("mapTrack");
+  const hasEquip = equip.edu || equip.major || equip.time;
+  document.getElementById("mapSub").textContent = hasEquip
+    ? "你已装备好，从第一关开始，逐个击破"
+    : "未选装备，先带你走一遍流程";
+  track.innerHTML = currentMatch.levelsDetail.map((lv,i)=>{
+    const done = clearedLevels[i];
+    const cls = done ? "done" : (i===currentLevel ? "current" : "");
+    return '<div class="map-node '+cls+'" data-i="'+i+'">'+
+      '<div class="dot">'+(done?"✅":["👑","🛡️","🐉","👹"][i])+'</div>'+
+      '<div class="nm">'+lv.gameName+'</div>'+
+      '<div class="rt">'+currentMatch.levels[i].name+'</div>'+
+      '<div class="rt2">'+currentMatch.levels[i].time+'</div>'+
+    '</div>';
+  }).join("");
+  track.querySelectorAll(".map-node").forEach(node=>{
+    node.addEventListener("click",()=>{
+      const i = parseInt(node.dataset.i,10);
+      if(i>0 && !clearedLevels[i-1]){
+        alert("先打通前面那关，再打这关～");
+        return;
+      }
+      openLevel(i);
+    });
+  });
+
+  // 4 关全通 → 显示「查看总奖励」按钮
+  const allClear = clearedLevels.every(v=>v===true);
+  document.getElementById("totalRewardBtn").style.display = allClear ? "inline-flex" : "none";
+}
+
+document.getElementById("mapBackBtn").addEventListener("click",()=>{
+  showPage("pageEquip");
+});
+
+/* ===== 总奖励结算（4 关全通后）===== */
+document.getElementById("totalRewardBtn").addEventListener("click",()=>{
+  showTotalReward();
+});
+
+function showTotalReward(){
+  const modal = document.getElementById("stepModal");
+  const box = modal.querySelector(".modal-box");
+  box.classList.add("reward-box","reward-final");
+  // 收集已通关的 4 个阶段成果
+  const badges = REWARD_IMG.map((img,idx)=>{
+    const lv = currentMatch.levelsDetail[idx];
+    return '<div class="total-badge"><img src="'+img+'" alt=""><span>'+lv.gameName+'</span></div>';
+  }).join("");
+  box.innerHTML =
+    '<div class="rf-particles" id="rfParticles"></div>'+
+    '<div class="rb-title">🏆 副本通关</div>'+
+    '<div class="rb-text">四条路你都走通了，整条比赛流程已经在你脑子里成形。这份「把模糊的事一步步走清楚」的本事，比任何一次拿奖都更经得起用。</div>'+
+    '<div class="total-badges">'+badges+'</div>'+
+    '<div class="rb-sub" style="color:#ffd166;font-size:13px;">全部 '+currentMatch.levelsDetail.length+' 关 · 阶段成果汇总</div>'+
+    '<button class="modal-close" id="totalRewardClose">收下全部成果</button>';
+  modal.classList.add("show");
+  spawnFinalParticles();
+  document.getElementById("totalRewardClose").addEventListener("click",()=>{
+    modal.classList.remove("show");
+    box.classList.remove("reward-box","reward-final");
+    box.innerHTML = defaultModalHTML;
+  });
+}
+
+/* ===== 打开关卡 ===== */
+function openLevel(i){
+  currentLevel = i;
+  const lv = currentMatch.levelsDetail[i];
+  document.getElementById("taskTitle").textContent = "第 "+(i+1)+" 关 · "+lv.gameName;
+  document.getElementById("taskBoss").textContent = lv.boss;
+  document.getElementById("taskReal").textContent = lv.real;
+
+  // 任务步骤（讲解）
+  document.getElementById("taskSteps").innerHTML = lv.steps.map((s,si)=>
+    '<div class="task-step" data-i="'+si+'">'+
+      '<div class="s-title">'+(si+1)+'. '+s.title+'</div>'+
+      '<div class="s-hint">'+s.hint+'</div>'+
+      '<div class="s-open">点击查看详情 ›</div>'+
+    '</div>'
+  ).join("");
+  document.querySelectorAll("#taskSteps .task-step").forEach(step=>{
+    step.addEventListener("click",()=>{
+      const si = parseInt(step.dataset.i,10);
+      const s = lv.steps[si];
+      document.getElementById("modalTitle").textContent = s.title;
+      document.getElementById("modalHow").textContent = s.how;
+      document.getElementById("modalNeed").textContent = s.need;
+      document.getElementById("modalNote").textContent = s.note;
+      const box = document.getElementById("stepModal").querySelector(".modal-box");
+      box.classList.remove("reward-box");
+      box.innerHTML = defaultModalHTML;
+      document.getElementById("modalTitle").textContent = s.title;
+      document.getElementById("modalHow").textContent = s.how;
+      document.getElementById("modalNeed").textContent = s.need;
+      document.getElementById("modalNote").textContent = s.note;
+      document.getElementById("stepModal").classList.add("show");
+    });
+  });
+
+  // 查看本关奖励：只有这关通关后才显示
+  document.getElementById("viewRewardBtn").style.display = clearedLevels[i] ? "inline-block" : "none";
+
+  showPage("pageTask");
+}
+
+document.getElementById("taskBackBtn").addEventListener("click",()=>{
+  renderMap();
+  showPage("pageMap");
+});
+
+// 打开参照计划表（独立页）
+document.getElementById("openPlanBtn").addEventListener("click",()=>{
+  renderPlan(currentLevel);
+  showPage("pagePlan");
+});
+
+// 查看本关奖励
+document.getElementById("viewRewardBtn").addEventListener("click",()=>{
+  showReward(currentLevel, false);
+});
+
+/* ===== 渲染参照计划表（独立页）===== */
+function renderPlan(i){
+  const lv = currentMatch.levelsDetail[i];
+  document.getElementById("planTitle").textContent = "第 "+(i+1)+" 关 · "+lv.gameName+" · 计划表";
+  document.getElementById("planReal").textContent = lv.real;
+  const box = document.getElementById("planList");
+  box.innerHTML = lv.plan.map((p,pi)=>
+    '<div class="plan-item'+(planChecked[i][pi]?" checked":"")+'" data-i="'+pi+'"><span class="box">'+(planChecked[i][pi]?"✓":"")+'</span><span>'+p+'</span></div>'
+  ).join("");
+  box.querySelectorAll(".plan-item").forEach(item=>{
+    item.addEventListener("click",()=>{
+      const pi = parseInt(item.dataset.i,10);
+      planChecked[i][pi] = !planChecked[i][pi];
+      item.classList.toggle("checked");
+      item.querySelector(".box").textContent = planChecked[i][pi] ? "✓" : "";
+      checkPlanComplete(i);
+    });
+  });
+}
+
+document.getElementById("planBackBtn").addEventListener("click",()=>{
+  showPage("pageTask");
+});
+
+/* 计划表勾选状态（跨页面保留）*/
+let planChecked = [[],[],[],[]];
+
+/* ===== 阶段奖励文案（有内涵，具体到事，不浮夸）===== */
+const ENCOURAGE = [
+  "报名这关，难的不是提交，是「敢开始」。多少人还没动手就先被「会不会来不及」劝退了。你把它迈过去了，就已经甩开了一批人。",
+  "把「这关要交什么」一条条捋清楚，本身就是一种稀缺的能力。多数人输不在不会做，而在不知道要做哪些。你现在知道了。",
+  "你刚走完的这一步，是很多人悄无声息放弃的地方。没人会为「中途退出」鼓掌，但你为「继续往前走」攒下了底气。",
+  "流程看得越清楚，心里越不慌。很多人不是能力不够，是看不清路才乱。你现在手里有地图了，剩下的只是按图走路。",
+  "真正拉开差距的，从来不是起点，而是「别人停在原地、你还在往前走」。这一关，你又往前了一步。",
+  "比赛的输赢是后话，能先把一件事的流程彻底摸透，这份「把模糊变清晰」的本事，你走到哪都用得上。"
+];
+const REWARD_IMG = ["assets/reward_1.png","assets/reward_2.png","assets/reward_3.png","assets/reward_4.png"];
+
+function checkPlanComplete(i){
+  // 严格按计划表项数判断：每一项都必须为 true
+  const total = currentMatch.levelsDetail[i].plan.length;
+  const arr = planChecked[i];
+  const all = total > 0 && arr.length >= total && arr.slice(0,total).every(v=>v===true);
+  if(all && !clearedLevels[i]){
+    showReward(i, true);
+  }
+}
+
+/* ===== 展示阶段奖励（融合结算，不再单独出"通关成功"页）===== */
+function showReward(i, fromComplete){
+  const isFinal = (i === currentMatch.levelsDetail.length - 1);
+  const text = ENCOURAGE[Math.floor(Math.random()*ENCOURAGE.length)];
+  const modal = document.getElementById("stepModal");
+  const box = modal.querySelector(".modal-box");
+  box.classList.add("reward-box");
+  box.classList.remove("reward-final");
+  box.innerHTML =
+    '<img class="rb-img" src="'+REWARD_IMG[i]+'" alt="阶段奖励">'+
+    '<div class="rb-title">'+(isFinal ? "🏆 终点前的最后一份" : "🎁 阶段奖励")+'</div>'+
+    '<div class="rb-text">'+text+'</div>'+
+    '<div class="rb-sub">「'+currentMatch.levelsDetail[i].gameName+'」已达成 · 第 '+(i+1)+' / '+currentMatch.levelsDetail.length+' 关</div>'+
+    (isFinal ? '<div class="rb-sub" style="color:#ffd166;font-size:13px;margin-top:4px;">四关都完成了，回到地图领取你的总奖励吧</div>' : '')+
+    '<button class="modal-close" id="rewardClose">收下奖励</button>';
+  modal.classList.add("show");
+  // 关闭后标记该关已通
+  document.getElementById("rewardClose").addEventListener("click",()=>{
+    modal.classList.remove("show");
+    box.classList.remove("reward-box","reward-final");
+    box.innerHTML = defaultModalHTML;
+    if(fromComplete){
+      clearedLevels[i] = true;
+      renderMap();
+      showPage("pageMap");
+    }
+  });
+}
+
+/* 最终关的动态粒子 */
+function spawnFinalParticles(){
+  const container = document.getElementById("rfParticles");
+  if(!container) return;
+  const colors = ["#ffd166","#ff8c42","#5fe08a","#4dd8e0","#ffffff"];
+  for(let i=0;i<40;i++){
+    const p = document.createElement("span");
+    p.className = "rf-p";
+    const size = 4 + Math.random()*8;
+    p.style.width = size+"px"; p.style.height = size+"px";
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.left = Math.random()*100+"%";
+    p.style.top = (55 + Math.random()*45)+"%";
+    p.style.animationDuration = (2 + Math.random()*3)+"s";
+    p.style.animationDelay = Math.random()*2+"s";
+    container.appendChild(p);
+  }
+}
+
+/* 记录默认弹窗内容，关闭奖励后恢复 */
+const defaultModalHTML = document.querySelector("#stepModal .modal-box").innerHTML;
+
+/* 弹窗关闭：用事件委托统一处理（步骤详情「知道了」按钮 + 奖励「收下奖励」按钮）*/
+const stepModal = document.getElementById("stepModal");
+stepModal.addEventListener("click",(e)=>{
+  // 点背景关闭（但奖励弹窗不点背景关，只能点按钮）
+  if(e.target.id==="stepModal"){
+    const box = stepModal.querySelector(".modal-box");
+    if(box.classList.contains("reward-box")) return; // 奖励弹窗不点背景关
+    stepModal.classList.remove("show");
+    box.innerHTML = defaultModalHTML;
+    return;
+  }
+  // 点「知道了」关闭步骤详情
+  if(e.target && e.target.id === "modalClose"){
+    stepModal.classList.remove("show");
+  }
+});
+
+/* ===== 鼠标光标（保留元素，但不再自动点击，通关改为奖励弹窗内完成）===== */
+
+/* ===== 导出计划表为图片 / 文本 ===== */
+function getPlanText(i){
+  const lv = currentMatch.levelsDetail[i];
+  const lines = ["第 "+(i+1)+" 关 · "+lv.gameName, lv.real, ""];
+  lv.plan.forEach((p,pi)=>{
+    lines.push((planChecked[i][pi]?"[✓] ":"[ ] ")+p);
+  });
+  lines.push("", "—— 竞赛副本 · 参照计划表");
+  return lines.join("\n");
+}
+
+document.getElementById("exportTxtBtn").addEventListener("click",()=>{
+  const text = getPlanText(currentLevel);
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "计划表_"+(currentLevel+1)+".txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("exportImgBtn").addEventListener("click",()=>{
+  // 用 canvas 把计划表画成一张图片导出
+  const lv = currentMatch.levelsDetail[currentLevel];
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const w = 640;
+  const lineH = 42;
+  const headerH = 110;
+  const h = headerH + lv.plan.length * lineH + 40;
+  canvas.width = w; canvas.height = h;
+  // 背景
+  ctx.fillStyle = "#1b1530";
+  ctx.fillRect(0,0,w,h);
+  // 标题
+  ctx.fillStyle = "#5fe08a";
+  ctx.font = "bold 24px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("第 "+(currentLevel+1)+" 关 · "+lv.gameName, w/2, 44);
+  ctx.fillStyle = "rgba(255,255,255,.7)";
+  ctx.font = "14px sans-serif";
+  ctx.fillText(lv.real, w/2, 72);
+  // 分隔线
+  ctx.strokeStyle = "rgba(95,224,138,.5)";
+  ctx.beginPath(); ctx.moveTo(40, 90); ctx.lineTo(w-40, 90); ctx.stroke();
+  // 条目
+  ctx.textAlign = "left";
+  lv.plan.forEach((p,pi)=>{
+    const y = headerH + pi*lineH + 20;
+    const checked = planChecked[currentLevel][pi];
+    ctx.fillStyle = "#5fe08a";
+    ctx.font = "bold 18px sans-serif";
+    ctx.fillText(checked ? "[✓]" : "[ ]", 40, y);
+    ctx.fillStyle = checked ? "rgba(255,255,255,.55)" : "#e8e3f8";
+    ctx.font = "16px sans-serif";
+    ctx.fillText(p, 95, y);
+  });
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = "计划表_"+(currentLevel+1)+".png";
+  a.click();
+});
+</script>
+</body>
+</html>

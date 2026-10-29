@@ -1,0 +1,27 @@
+# 密钥文件，绝不推送到 GitHub
+search.config.json
+
+# 本地部署教程（不需要上生产）
+部署到Cloudflare教程.md
+申请搜索key教程.md
+
+# Node 本地后端（生产走 Cloudflare Worker，用不到）
+server.js
+package.json
+
+# 历史遗留的多余图片（前端只引用 assets 里 6 张）
+assets/像素风_*.png
+assets/victory.png
+
+# 系统文件
+.DS_Store
+node_modules/
+
+# 云服务应用标识（不能推）
+.wbapp_*.genie
+
+# WorkBuddy 工作区内部数据（不能推）
+.workbuddy/
+
+# 本地预览文件
+mobile-preview.html
