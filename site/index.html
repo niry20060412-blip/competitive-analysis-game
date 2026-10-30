@@ -20,8 +20,8 @@
     background-size:cover; background-position:center; background-repeat:no-repeat;
     transition:opacity 1.4s ease; image-rendering:pixelated;
   }
-  .bg-day{ background-image:url('assets/bg_day.png'); background-color:#a9dcf5; opacity:1; }
-  .bg-night{ background-image:url('assets/bg_night.png'); background-color:#0b1030; opacity:0; }
+  .bg-day{ background-image:url('assets/bg_day.jpg'); background-color:#a9dcf5; opacity:1; }
+  .bg-night{ background-image:url('assets/bg_night.jpg'); background-color:#0b1030; opacity:0; }
   .stage.night .bg-day{ opacity:0; }
   .stage.night .bg-night{ opacity:1; }
 
@@ -124,6 +124,7 @@
   .intel-name{ text-align:center; font-size:17px; font-weight:900; color:#fff; letter-spacing:1px; margin:0 0 10px; text-shadow:0 2px 0 rgba(0,0,0,.4); }
   .intel-badge{ text-align:center; margin:0 0 10px; }
   .intel-badge span{ display:inline-block; font-size:12px; padding:4px 12px; border-radius:999px; background:rgba(46,204,113,.18); border:1px solid #2ecc71; color:#7bed9f; font-weight:700; }
+  .intel-refining{ text-align:center; margin:0 0 10px; font-size:12.5px; color:#7adfe6; padding:8px 12px; border-radius:10px; background:rgba(77,216,224,.1); border:1px dashed rgba(77,216,224,.45); }
   .intel-card .i-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 18px; }
   .intel-row{ display:flex; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.12); font-size:14px; }
   .intel-row:last-child{ border-bottom:none; }
@@ -134,6 +135,28 @@
   .intel-levels .lv .n{ display:inline-flex; min-width:24px; height:24px; align-items:center; justify-content:center; background:#ff8c42; color:#fff; border-radius:6px; font-weight:800; font-size:13px; }
   .intel-card .px-btn{ width:100%; margin-top:18px; }
   .intel-confirm-note{ text-align:center; font-size:12px; color:rgba(255,255,255,.6); margin-top:10px; }
+
+  /* ===== 选择比赛页（确认搜到的到底是哪个比赛）===== */
+  .pick-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(460px,90vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:86vh; overflow-y:auto; }
+  .pick-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#4dd8e0; }
+  .pick-card .pk-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 16px; line-height:1.6; }
+  .pick-badge{ text-align:center; margin:0 0 12px; }
+  .pick-badge span{ display:inline-block; font-size:12px; padding:4px 12px; border-radius:999px; background:rgba(77,216,224,.15); border:1px solid #4dd8e0; color:#7adfe6; font-weight:700; }
+  .pick-list{ display:flex; flex-direction:column; gap:10px; }
+  .pick-opt{
+    border:2px solid rgba(255,255,255,.24); border-radius:13px; padding:14px 16px; cursor:pointer;
+    background:rgba(255,255,255,.07); transition:.14s; text-align:left;
+  }
+  .pick-opt:hover{ border-color:#4dd8e0; background:rgba(77,216,224,.12); transform:translateY(-2px); }
+  .pick-opt .po-name{ font-size:15px; font-weight:800; color:#fff; letter-spacing:.5px; line-height:1.4; }
+  .pick-opt .po-desc{ font-size:12.5px; color:rgba(255,255,255,.68); margin-top:5px; line-height:1.6; }
+  .pick-opt .po-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; gap:8px; }
+  .pick-opt .po-tag{ display:inline-block; font-size:11px; padding:2px 8px; border-radius:6px; background:rgba(255,209,102,.18); color:#ffd166; border:1px solid rgba(255,209,102,.45); }
+  .pick-opt .po-src{ font-size:12px; color:#4dd8e0; text-decoration:none; font-weight:700; white-space:nowrap; }
+  .pick-opt .po-src:hover{ text-decoration:underline; }
+  .pick-none{ text-align:center; color:rgba(255,255,255,.6); font-size:13px; line-height:1.8; padding:10px 0; }
+  .pick-card .px-btn{ width:100%; margin-top:16px; }
+  .pick-card .mini-row{ margin-top:8px; }
 
   /* ===== 选装备页 ===== */
   .equip-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(460px,90vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:86vh; overflow-y:auto; }
@@ -433,12 +456,25 @@
     </div>
   </div>
 
+  <!-- ===== 第 3.5 页：选择比赛（确认搜到的到底是哪个比赛）===== -->
+  <div class="page hidden" id="pagePickComp">
+    <div class="pick-card">
+      <h2>🎯 确认是哪个比赛</h2>
+      <p class="pk-sub" id="pickSub">搜到下面几个可能，点选你要的那个</p>
+      <div class="pick-badge" id="pickBadge" style="display:none;"><span>⚡ 实时联网搜索</span></div>
+      <div class="pick-list" id="pickList"></div>
+      <button class="px-btn small" id="pickNoneBtn" style="width:100%;margin-top:14px;">都不是，我手动填 / 重新搜</button>
+      <div class="mini-row"><button class="mini-back" id="pickBackBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
   <!-- ===== 第 4 页：副本情报 ===== -->
   <div class="page hidden" id="pageIntel">
     <div class="intel-card">
       <h2>📜 副本情报</h2>
       <div class="intel-name" id="intelName"></div>
       <div class="intel-badge" id="intelBadge" style="display:none;"></div>
+      <div class="intel-refining" id="intelRefining" style="display:none;">🤖 正在用 AI 深化整理，几秒后自动升级成更清晰的信息…</div>
       <p class="i-sub">请确认这份比赛信息无误，确认后进入选装备</p>
       <div id="intelRows"></div>
       <div class="intel-levels">
@@ -601,18 +637,50 @@
 /* ===== 云服务初始化（免密钥大模型调用） ===== */
 let cloud = null;
 let cloudReady = false;
+window.__cloudInit = { sdkLoaded: false, initOk: false, err: "" };
 try {
   if (typeof WorkBuddyCloud !== "undefined" && WorkBuddyCloud.createWorkBuddyCloud) {
+    window.__cloudInit.sdkLoaded = true;
     cloud = WorkBuddyCloud.createWorkBuddyCloud({
       endpoint: "https://competition-dungeon.app.workbuddy.host",
       oauthRelayBaseUrl: "https://www.workbuddy.cn/v2/as/genie-baas/oauth",
       publishableKey: "wbpk_y632jG35TevEaspK8IZ2l5_r3LYP43o5HBSEGlWmF3vYEj9LJa0pljz",
     });
     cloudReady = true;
+    window.__cloudInit.initOk = true;
+  } else {
+    window.__cloudInit.err = "WorkBuddyCloud 未定义（SDK 未加载成功）";
   }
 } catch(e) {
   cloud = null;
   cloudReady = false;
+  window.__cloudInit.err = String(e && e.message || e);
+}
+
+/* 选一个适合做「结构化 JSON 输出」的对话模型：
+   跳过 onlyReasoning（纯思考模型，不接受 json_object），优先普通对话模型 */
+let _pickedModelId = null;
+async function pickChatModel(){
+  if(_pickedModelId) return _pickedModelId;
+  let models = [];
+  try { models = await cloud.llm.models.list(); } catch(e){ models = []; }
+  if(models && models.length){
+    const isUsable = m => m && (m.enabled !== false) && (m.disabled !== true);
+    // 1) 优先：明确适合对话且非纯推理的模型（hunyuan-chat 等）
+    const chatLike = models.find(m => isUsable(m) && m.onlyReasoning !== true && !/^(auto|default)$/i.test(m.id||""));
+    // 2) 次选：任意非 auto/default、非纯推理的
+    const normal = models.find(m => isUsable(m) && m.onlyReasoning !== true && m.supportsReasoning !== true && !/^(auto|default)$/i.test(m.id||""));
+    // 3) 再退：deepseek-v4-pro / glm-4.7 这类已知稳定的
+    const known = models.find(m => isUsable(m) && /^(deepseek-v4-pro|glm-4\.7|glm-4\.6|hunyuan-chat)$/i.test(m.id||""));
+    const pick = chatLike || normal || known || models.find(m => isUsable(m) && !/^(auto|default)$/i.test(m.id||"")) || models[0];
+    if(pick && pick.id){
+      _pickedModelId = pick.id;
+      return _pickedModelId;
+    }
+  }
+  // 兜底：一个稳定的对话模型 id
+  _pickedModelId = "hunyuan-chat";
+  return _pickedModelId;
 }
 
 /* ===== 白天黑夜切换 ===== */
@@ -722,7 +790,7 @@ setInterval(autoTheme,30000); autoTheme();
 
 /* ===== 页面切换 ===== */
 function showPage(id){
-  ["pageWelcome","pageInput","pageLinkForm","pagePasteForm","pageTextForm","pageProgress","pageIntel","pageEquip","pageEval","pageExp","pageMap","pageTask","pagePlan"].forEach(p=>document.getElementById(p).classList.add("hidden"));
+  ["pageWelcome","pageInput","pageLinkForm","pagePasteForm","pageTextForm","pageProgress","pagePickComp","pageIntel","pageEquip","pageEval","pageExp","pageMap","pageTask","pagePlan"].forEach(p=>document.getElementById(p).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
 
@@ -1144,6 +1212,144 @@ async function searchOnline(query){
   }
 }
 
+/* 把实时搜索结果归纳成「候选比赛列表」，让用户先确认是哪一个
+ * 纯规则提取（秒出、不依赖 AI、不编造）：直接复用百度搜索返回的真实标题，
+ * 把不同的比赛名提取出来作为候选。质量更可靠，速度从「最长20秒」降到「毫秒级」。
+ */
+function resultsToCandidates(query, results){
+  const out = [];
+
+  for(const r of results){
+    let title = (r.title || "").trim();
+    if(!title) continue;
+
+    // 清理标题里常见的站点后缀 / 符号，留下更干净的比赛名
+    let name = title
+      .replace(/[_\-\s]*[·•|｜\-—_].*$/, "")   // 去掉"·xxx"或"-xxx"后缀（如"官网""报名"）
+      .replace(/[【\[（(].*$/, "")               // 去掉括号后缀
+      .replace(/[】\]）)]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // 太短/太长的标题不可靠，跳过
+    if(name.length < 4 || name.length > 40) continue;
+
+    // 明显是导航/门户/招聘页，不是比赛本身，跳过
+    if(/^(首页|搜索|报名|登录|注册|官网|通知|公告|百度|360|知乎|小红书|抖音|B站|哔哩)/.test(name)) continue;
+
+    // 去掉纯站名结尾的干扰（保留比赛主体）
+    name = name.replace(/(官网|报名入口|报名通道|报名方式|比赛时间|时间安排|通知|公告)$/, "").trim();
+    if(name.length < 4) continue;
+
+    // 去重：按「包含关系」合并相似项
+    let dup = false;
+    for(const e of out){
+      if(e.name === name || e.name.includes(name) || name.includes(e.name)){
+        dup = true;
+        break;
+      }
+    }
+    if(dup) continue;
+
+    // 从该结果的摘要里截一句说明（纯规则，不调 AI）
+    let desc = "";
+    const sn = (r.snippet || "").trim();
+    if(sn){
+      desc = sn.replace(/\s+/g, " ").slice(0, 40);
+      if(desc.length >= 40) desc += "…";
+    }
+
+    out.push({ name: name, desc: desc, url: r.url || "" });
+    if(out.length >= 5) break;
+  }
+
+  if(out.length === 0) return null;
+  return out;
+}
+
+/* 渲染候选比赛列表，用户点选后进入下一步 */
+let pickCandidates = [];   // 当前候选列表
+let pickRawResults = [];   // 当前搜索结果原文（选中后用于整理详情）
+let pickQuery = "";        // 当前搜索词
+
+function renderPickList(candidates){
+  const listEl = document.getElementById("pickList");
+  if(!candidates || candidates.length === 0){
+    listEl.innerHTML = '<div class="pick-none">没能从搜索结果里明确认出是哪个比赛。<br>你可以返回，换个更准确的比赛名再搜，或直接手动填写。</div>';
+    return;
+  }
+  listEl.innerHTML = candidates.map((c, i)=>{
+    const name = c.name || "";
+    const desc = c.desc || "";
+    const url = c.url || "";
+    return '<div class="pick-opt" data-i="'+i+'">' +
+      '<div class="po-name">'+escapeHtml(name)+'</div>' +
+      (desc ? '<div class="po-desc">'+escapeHtml(desc)+'</div>' : '') +
+      '<div class="po-foot">' +
+        '<span class="po-tag">点选这个比赛</span>' +
+        (url ? '<a class="po-src" href="'+escapeHtml(url)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">查看来源 ↗</a>' : '') +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
+/* 用户点选某个候选比赛后：先秒出搜索原文，再后台用 AI 深化整理替换 */
+async function pickComp(i){
+  const c = pickCandidates[i];
+  if(!c) return;
+  const name = c.name;
+
+  // 只挑「标题或摘要里包含该比赛关键词」的结果，减少 LLM 输入、加快速度
+  const relevant = filterRelevantResults(name, pickRawResults);
+
+  // 1) 立即用搜索原文展示情报（秒出，用户不用等）
+  applyRawResults(name, relevant);
+
+  // 2) 在情报页顶部显示「正在深化整理」轻提示
+  const refining = document.getElementById("intelRefining");
+  refining.style.display = "block";
+
+  // 3) 后台异步跑 AI 整理，成功则替换成结构化情报
+  try {
+    const parsed = await resultsToMatch(name, relevant);
+    if(parsed && parsed.name){
+      applyExtractedFromSearch(parsed, relevant);
+    }
+  } catch(e){
+    // AI 整理失败就保持原文展示，不打扰用户
+  } finally {
+    refining.style.display = "none";
+  }
+}
+
+/* 从结果里筛出与目标比赛名相关的几条（标题或摘要命中的优先），最多 6 条 */
+function filterRelevantResults(name, results){
+  const kw = name.replace(/[【】\[\]（）()]/g, "").trim();
+  const tokens = kw.split(/\s+/).filter(t => t.length >= 2);
+  if(!tokens.length) return results.slice(0, 6);
+
+  const scored = results.map(r => {
+    const hay = ((r.title||"") + " " + (r.snippet||"")).toLowerCase();
+    let score = 0;
+    for(const t of tokens){
+      if(hay.includes(t.toLowerCase())) score += 1;
+    }
+    // 完整名字命中加分
+    if(hay.includes(kw.toLowerCase())) score += 2;
+    return { r, score };
+  });
+
+  // 命中的排前面；没命中的排后面；最多取 6 条
+  scored.sort((a,b) => b.score - a.score);
+  const picked = scored.slice(0, 6).map(x => x.r);
+  // 保证至少保留一些结果（哪怕不相关，也要有素材）
+  return picked.length ? picked : results.slice(0, 6);
+}
+
 /* 把实时搜索结果 + 比赛名，交给 LLM 整理成 currentMatch */
 async function resultsToMatch(query, results){
   if(!cloudReady || !cloud){
@@ -1157,23 +1363,16 @@ async function resultsToMatch(query, results){
     return s;
   }).join("\n\n");
 
-  const systemPrompt = "你是一个严谨的比赛信息整理助手。下面会给你「某个比赛的实时搜索结果」（多条网页标题+摘要+时间+来源）。请综合这些真实搜索到的信息，整理出这个比赛的关键信息。\n\n必须遵守：\n1. 只依据搜索结果里明确写到的内容，没有提到的字段一律填「未核实」，绝不编造、不推测、不凭记忆补。\n2. 如果搜索结果是往届信息，或信息不完整，如实填「未核实」，不要硬编。\n3. 输出必须是合法 JSON，不要输出 JSON 以外的文字。\n4. 比赛名称取官方正式名称。\n\n输出 JSON 结构（字段名固定）：\n{\n  \"name\": \"比赛官方名称\",\n  \"host\": \"主办方\",\n  \"system\": \"赛制/流程\",\n  \"target\": \"参赛对象\",\n  \"url\": \"报名入口\",\n  \"track\": \"赛道/组别\",\n  \"time\": \"时间安排\",\n  \"stages\": [\"环节1\",\"环节2\",\"环节3\",\"环节4\"]\n}\nstages 尽量整理出实际环节，凑不满按实际数量填，没有就填空数组 []。";
+  const systemPrompt = "你是比赛信息整理助手。下面给你某比赛的实时搜索结果（标题+摘要+时间+来源）。请提炼关键信息，并生成后续引导用户闯关所需的内容。直接输出一个合法 JSON（不要任何多余文字、不要解释）。\n\n规则：\n1. 只依据结果里明确写到的内容，没提到的字段填「未核实」，绝不编造。\n2. 每项尽量简短（一句话以内），不要长篇大论。\n3. 比赛名称取官方正式名。\n4. stages 按实际环节填（报名/初赛/复赛/决赛等），没有就 []。\n\nJSON 结构（字段名固定）：\n{\n  \"name\":\"比赛官方名\",\n  \"host\":\"主办方\",\n  \"system\":\"赛制流程\",\n  \"target\":\"参赛对象\",\n  \"url\":\"报名入口\",\n  \"track\":\"赛道组别\",\n  \"time\":\"时间安排\",\n  \"stages\":[\"环节1\",\"环节2\",\"环节3\",\"环节4\"],\n  \"steps\":[\n    {\"step\":\"这一环节具体要做什么（结合这个比赛的真实要求）\",\"need\":\"要准备的材料/文件\",\"note\":\"这一环节容易踩的坑/截止提醒\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"}\n  ],\n  \"plan\":[\n    [\"第1关待办1\",\"第1关待办2\",\"第1关待办3\",\"第1关待办4\"],\n    [\"第2关待办1\",\"...\"],\n    [\"第3关待办1\",\"...\"],\n    [\"第4关待办1\",\"...\"]\n  ],\n  \"eval\":\"一段针对这个比赛的适配建议（面向什么学历/专业/时间投入更合适，60字以内，依据真实信息，信息不足就说明'以官方为准'）\",\n  \"exp\":[\n    {\"title\":\"过来人经验1的标题\",\"text\":\"具体建议内容（50字以内）\"},\n    {\"title\":\"过来人经验2的标题\",\"text\":\"...\"},\n    {\"title\":\"过来人经验3的标题\",\"text\":\"...\"}\n  ]\n}\n\n说明：steps 的条数要和 stages 一致（最多4条）；plan 是二维数组，每个子数组对应该关的待办清单（3~4条）；exp 给 2~3 条针对这类比赛的实用经验。所有内容只依据搜索结果真实信息，信息不足就结合比赛类型给「通用但实在」的建议，并如实标注待核实，绝不胡编具体数据。";
 
-  const userPrompt = "用户想了解的比赛是：「" + query + "」。\n\n以下是实时搜索到的结果，请综合整理：\n\n" + summary;
+  const userPrompt = "比赛：「" + query + "」。实时搜索结果：\n\n" + summary;
 
-  // 用 AbortController 做超时保护，防止 LLM 卡死导致按钮一直转圈
+  // 用 AbortController 做超时保护（后台生成，用户已先看到原文，可放宽到 30 秒）
   const controller = new AbortController();
-  const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 25000);
+  const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 30000);
 
   try {
-    let models = [];
-    try { models = await cloud.llm.models.list(); } catch(e){ models = []; }
-    let model = null;
-    if(models && models.length){
-      const usable = models.filter(m => m.disabled !== true && !/^(auto|default)$/i.test(m.id||""));
-      model = usable[0] || models.find(m => m.disabled !== true) || models[0];
-    }
-    const modelId = model && model.id ? model.id : "deepseek-v4-pro";
+    const modelId = await pickChatModel();
 
     let answer = "";
     const stream = cloud.llm.chat.completions.create({
@@ -1183,7 +1382,6 @@ async function resultsToMatch(query, results){
         { role:"user", content: userPrompt }
       ],
       stream: true,
-      response_format: { type:"json_object" },
       signal: controller.signal
     });
     for await (const chunk of stream){
@@ -1199,9 +1397,13 @@ async function resultsToMatch(query, results){
       const m = answer.match(/\{[\s\S]*\}/);
       if(m){ try { parsed = JSON.parse(m[0]); } catch(e2){ parsed = null; } }
     }
+    if(!parsed){
+      window.__diag = { step:"resultsToMatch", modelId, answer: answer.slice(0,200) };
+    }
     return parsed;
   } catch(err){
     clearTimeout(timeout);
+    window.__diag = { step:"resultsToMatch", modelId, error: String(err && err.message || err) };
     console.error("resultsToMatch error:", err);
     return null;
   }
@@ -1225,19 +1427,39 @@ async function handleNameSearch(query){
   const online = await searchOnline(q);
 
   if(online && online.configured && online.results && online.results.length){
-    // 搜到了：用 LLM 整理
+    // 先尝试把搜索结果归纳成「候选比赛列表」，让用户确认是哪一个（纯规则，秒出）
+    const candidates = resultsToCandidates(q, online.results);
+
+    if(candidates && candidates.length){
+      // 搜到多个可能 → 展示选择页，让用户点选
+      btn.textContent = oldTxt;
+      btn.disabled = false;
+      pickCandidates = candidates;
+      pickRawResults = online.results;
+      pickQuery = q;
+      document.getElementById("pickSub").textContent = "「"+q+"」可能指下面几个比赛，点选你要的那个";
+      document.getElementById("pickBadge").style.display = "block";
+      document.getElementById("pickBadge").innerHTML = '<span>⚡ 实时联网搜索 · 找到 '+candidates.length+' 个可能</span>';
+      renderPickList(candidates);
+      showPage("pagePickComp");
+      return;
+    }
+
+    // 候选提取失败（结果太少/无法归并），但仍搜到了结果 → 直接用原始结果整理成情报
     btn.textContent = "🤖 正在整理…";
     const parsed = await resultsToMatch(q, online.results);
     btn.textContent = oldTxt;
     btn.disabled = false;
-
     if(parsed && parsed.name){
-      // 给用户一个明确提示：这是实时搜索整理的结果
       applyExtractedFromSearch(parsed, online.results);
-      return;
+    } else {
+      // 诊断提示：把 LLM 失败原因显示出来，便于排查（临时）
+      const d = window.__diag;
+      if(d){
+        console.warn("[诊断] 归纳失败：", d);
+      }
+      applyRawResults(q, online.results);
     }
-    // LLM 整理失败/超时 → 直接用原始搜索结果展示（信息仍是实时的）
-    applyRawResults(q, online.results);
     return;
   }
 
@@ -1248,10 +1470,10 @@ async function handleNameSearch(query){
   fallbackToLibrary(q);
 }
 
-/* 降级：LLM 整理失败时，直接把实时搜索结果原文展示（不编造、仍是实时信息） */
+/* 展示实时搜索原文（秒出，作为「先让用户看到」的第一步；后续可被 AI 深化整理替换） */
 function applyRawResults(query, results){
   const info = [];
-  // 把每条搜索结果作为一条信息展示，标题 + 摘要
+  // 把每条搜索结果作为一条信息展示：标题 + 摘要
   results.slice(0, 6).forEach((r, i) => {
     const title = r.title || ("搜索结果 " + (i+1));
     const snippet = r.snippet ? r.snippet.slice(0, 120) : "";
@@ -1298,9 +1520,20 @@ function applyExtractedFromSearch(p, rawResults){
   }
 
   const levels = stages.map(s => ({ name:s, time:"" }));
-  const levelsDetail = genericLevelsDetail(stages);
+  const levelsDetail = buildLevelsDetail(stages, p);
 
-  currentMatch = { name:name, info:info.length ? info : [["主办","未核实"]], levels:levels, levelsDetail:levelsDetail, isRealtime:true };
+  currentMatch = {
+    name:name,
+    info:info.length ? info : [["主办","未核实"]],
+    levels:levels,
+    levelsDetail:levelsDetail,
+    // 装备测评用：AI 针对这个比赛生成的适配建议
+    evalNote: (p.eval && p.eval !== "未核实") ? p.eval : "",
+    // 过来人经验用：AI 针对这个比赛生成的经验
+    expTips: (Array.isArray(p.exp) && p.exp.length) ? p.exp : null,
+    isRealtime:true,
+    isRaw:false
+  };
   resetProgressState();
   pBossName.textContent = "Boss：" + currentMatch.name;
   renderIntel();
@@ -1320,8 +1553,47 @@ function fallbackToLibrary(q){
   renderIntel();
   showPage("pageIntel");
 }
+/* 构建每关详情：优先用 AI 生成的真实 steps/plan，缺失时兜底通用模板 */
+function buildLevelsDetail(stages, p){
+  const icons = ["👑","🛡️","🐉","👹"];
+  const bossNames = ["守门 Boss","守门 Boss","评审 Boss","终极 Boss"];
+  const names = (stages && stages.length) ? stages : ["报名","初赛","复赛","决赛"];
+  const aiSteps = (Array.isArray(p && p.steps) && p.steps.length) ? p.steps : [];
+  const aiPlan = (Array.isArray(p && p.plan) && p.plan.length) ? p.plan : [];
+
+  return names.map((nm, i)=>{
+    let steps, plan;
+
+    // 优先用 AI 针对这一关生成的真实步骤
+    if(aiSteps[i] && aiSteps[i].step){
+      const s = aiSteps[i];
+      steps = [{
+        title: "这一关要做什么",
+        hint: "点开看怎么做",
+        how: s.step,
+        need: s.need || "按官方通知准备相应材料。",
+        note: s.note || "以官方通知为准。"
+      }];
+    } else {
+      steps = [
+        { title:"了解这关要求", hint:"点开看怎么做", how:"先搞清楚这一环节具体要你做什么、交什么、什么时候截止。把通知原文找出来，别只看二手转述。", need:"比赛通知原文、这关的提交材料清单。", note:"信息要以官方通知为准。" },
+        { title:"准备材料", hint:"点开看怎么做", how:"把这关要交的东西整理好：材料、作品、演示或答辩稿。先有初稿，再打磨。", need:"这一环节要求的材料文件。", note:"材料要真实、完整，缺一样都可能被退回。" },
+        { title:"按时提交 / 参加", hint:"点开看怎么做", how:"按官方通知的时间、渠道提交材料或到场参加。提前一天准备好，别卡在最后一刻。", need:"能上网的设备、准备好的材料、提醒自己别忘时间。", note:"截止时间错过就没了，务必提前设提醒。" }
+      ];
+    }
+
+    // 优先用 AI 针对这一关生成的真实计划表
+    if(aiPlan[i] && Array.isArray(aiPlan[i]) && aiPlan[i].length){
+      plan = aiPlan[i].filter(x => x && String(x).trim()).slice(0, 5);
+    } else {
+      plan = ["找到官方"+nm+"通知","确认我符合条件","准备好材料","完成"+nm];
+    }
+
+    return { gameName:nm+"之门", boss:icons[i]+" "+bossNames[i], real:"真实环节："+nm, steps:steps, plan:plan };
+  });
+}
+
 function genericLevelsDetail(stageNames){
-  // 根据真实环节名（报名/初赛/复赛/决赛等）生成 4 关的详情
   const icons = ["👑","🛡️","🐉","👹"];
   const bossNames = ["守门 Boss","守门 Boss","评审 Boss","终极 Boss"];
   const names = stageNames && stageNames.length === 4 ? stageNames : ["报名","初赛","复赛","决赛"];
@@ -1347,20 +1619,12 @@ async function doExtract(url, text){
   const btnHint = document.getElementById("pBored");
   btnHint.textContent = "🤖 AI 正在从正文里提取比赛信息…";
 
-  const systemPrompt = "你是一个严谨的比赛信息整理助手。你的任务是从用户提供的网页正文里，提取一个「项目答辩制竞赛」的关键信息。\n\n必须遵守：\n1. 只依据正文里明确写到的内容填写，正文没有提到的，一律填「未核实」，绝不编造、不推测。\n2. 如果正文整体不是一份比赛/竞赛通知，请在 name 字段里说明「这看起来不是一份比赛通知」。\n3. 输出必须是合法 JSON，不要输出任何 JSON 以外的文字。\n4. 比赛名称只取官方正式名称，不要自己起名。\n\n输出 JSON 结构（字段名固定）：\n{\n  \"name\": \"比赛官方名称\",\n  \"host\": \"主办方\",\n  \"system\": \"赛制/流程（如校赛→省赛→总决赛）\",\n  \"target\": \"参赛对象\",\n  \"url\": \"报名入口网址或渠道\",\n  \"track\": \"赛道/组别\",\n  \"time\": \"时间安排\",\n  \"stages\": [\"环节1\",\"环节2\",\"环节3\",\"环节4\"]\n}\n其中 stages 尽量整理出比赛的实际环节（报名、初赛、复赛、决赛等），凑不满 4 个就按实际数量填，没有就填空数组 []。";
+  const systemPrompt = "你是一个严谨的比赛信息整理助手。你的任务是从用户提供的网页正文里，提取一个「项目答辩制竞赛」的关键信息，并生成引导用户闯关所需的内容。\n\n必须遵守：\n1. 只依据正文里明确写到的内容填写，正文没有提到的，一律填「未核实」，绝不编造、不推测。\n2. 如果正文整体不是一份比赛/竞赛通知，请在 name 字段里说明「这看起来不是一份比赛通知」。\n3. 输出必须是合法 JSON，不要输出任何 JSON 以外的文字。\n4. 比赛名称只取官方正式名称，不要自己起名。\n\n输出 JSON 结构（字段名固定）：\n{\n  \"name\": \"比赛官方名称\",\n  \"host\": \"主办方\",\n  \"system\": \"赛制/流程（如校赛→省赛→总决赛）\",\n  \"target\": \"参赛对象\",\n  \"url\": \"报名入口网址或渠道\",\n  \"track\": \"赛道/组别\",\n  \"time\": \"时间安排\",\n  \"stages\": [\"环节1\",\"环节2\",\"环节3\",\"环节4\"],\n  \"steps\": [\n    {\"step\":\"这一环节具体做什么（结合正文真实要求）\",\"need\":\"要准备的材料\",\"note\":\"容易踩的坑/截止提醒\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"}\n  ],\n  \"plan\": [\n    [\"第1关待办1\",\"第1关待办2\",\"第1关待办3\",\"第1关待办4\"],\n    [\"第2关待办1\",\"...\"],\n    [\"第3关待办1\",\"...\"],\n    [\"第4关待办1\",\"...\"]\n  ],\n  \"eval\":\"针对这个比赛的适配建议（面向什么学历/专业/时间投入，60字以内，信息不足就写'以官方为准'）\",\n  \"exp\":[\n    {\"title\":\"经验标题1\",\"text\":\"具体建议（50字以内）\"},\n    {\"title\":\"经验标题2\",\"text\":\"...\"},\n    {\"title\":\"经验标题3\",\"text\":\"...\"}\n  ]\n}\n其中 stages 尽量整理出比赛的实际环节（报名、初赛、复赛、决赛等），凑不满 4 个就按实际数量填；steps 条数要和 stages 一致（最多4条）；plan 是二维数组，每个子数组对应该关待办（3~4条）；exp 给 2~3 条实用经验。所有内容只依据正文真实信息，信息不足就结合比赛类型给实在建议并标注待核实。";
 
   const userPrompt = (url ? "比赛通知链接是：" + url + "\n\n" : "") + "以下是网页正文，请提取比赛信息：\n\n" + text;
 
   try {
-    let models = [];
-    try { models = await cloud.llm.models.list(); } catch(e){ models = []; }
-    let model = null;
-    if(models && models.length){
-      // 跳过 auto/default 这类占位 id，选第一个真实可用的模型
-      const usable = models.filter(m => m.disabled !== true && !/^(auto|default)$/i.test(m.id||""));
-      model = usable[0] || models.find(m => m.disabled !== true) || models[0];
-    }
-    const modelId = model && model.id ? model.id : "deepseek-v4-pro";
+    const modelId = await pickChatModel();
 
     let answer = "";
     const stream = cloud.llm.chat.completions.create({
@@ -1369,8 +1633,7 @@ async function doExtract(url, text){
         { role:"system", content: systemPrompt },
         { role:"user", content: userPrompt }
       ],
-      stream: true,
-      response_format: { type:"json_object" }
+      stream: true
     });
     for await (const chunk of stream){
       const delta = chunk.choices && chunk.choices[0] ? chunk.choices[0].delta : null;
@@ -1416,9 +1679,16 @@ function applyExtracted(p){
   const name = (p.name && p.name !== "未核实") ? p.name : "未命名比赛";
 
   const levels = stages.map(s => ({ name:s, time:"" }));
-  const levelsDetail = genericLevelsDetail(stages);
+  const levelsDetail = buildLevelsDetail(stages, p);
 
-  currentMatch = { name:name, info:info.length ? info : [["主办","未核实"]], levels:levels, levelsDetail:levelsDetail };
+  currentMatch = {
+    name:name,
+    info:info.length ? info : [["主办","未核实"]],
+    levels:levels,
+    levelsDetail:levelsDetail,
+    evalNote: (p.eval && p.eval !== "未核实") ? p.eval : "",
+    expTips: (Array.isArray(p.exp) && p.exp.length) ? p.exp : null
+  };
   renderIntel();
   showPage("pageIntel");
 }
@@ -1430,7 +1700,11 @@ function renderIntel(){
   const badge = document.getElementById("intelBadge");
   if(currentMatch.isRealtime){
     badge.style.display = "block";
-    badge.innerHTML = '<span>⚡ 实时联网搜索 · 已按最新信息整理</span>';
+    if(currentMatch.isRaw){
+      badge.innerHTML = '<span>⚡ 实时搜索结果 · 正在用 AI 深化整理</span>';
+    } else {
+      badge.innerHTML = '<span>⚡ 实时联网搜索 · 已按最新信息整理</span>';
+    }
   } else {
     badge.style.display = "none";
     badge.innerHTML = "";
@@ -1464,6 +1738,25 @@ renderIntel();
 document.getElementById("intelOkBtn").addEventListener("click",()=>{
   showPage("pageEquip");
 });
+
+/* ===== 选择比赛页：绑定事件 ===== */
+// 点选某个候选比赛
+document.getElementById("pickList").addEventListener("click",(e)=>{
+  const t = e.target.closest(".pick-opt");
+  if(!t) return;
+  const i = parseInt(t.dataset.i, 10);
+  pickComp(i);
+});
+// 返回上一步（回到输入页）
+document.getElementById("pickBackBtn").addEventListener("click",()=>{
+  showPage("pageInput");
+});
+// 「都不是」→ 回到输入页，让用户重新搜或手动填
+document.getElementById("pickNoneBtn").addEventListener("click",()=>{
+  showPage("pageInput");
+  document.getElementById("searchName").focus();
+});
+
 // 情报页返回 → 进度页
 document.getElementById("intelBackBtn").addEventListener("click",()=>{
   showPage("pageProgress");
@@ -1579,16 +1872,26 @@ function renderEval(){
   // 逐条比对（委婉语气）
   const items = [];
 
+  // 0. 优先插入「针对这个比赛」的 AI 适配建议（真实信息，不是套话）
+  if(currentMatch && currentMatch.evalNote){
+    items.push({ title:"🎯 这个比赛的针对性要求", tag:"ok", text:currentMatch.evalNote, why:"依据：实时联网搜索到的比赛信息。" });
+  }
+
   // 1. 学历/年级
   if(equip.edu){
-    const eduText = "这个比赛面向高校在校生（含专科、本科、研究生），也接受毕业5年内的毕业生。";
+    // 优先用真实搜索到的参赛对象信息，没有则用通用说明
+    const realTarget = (currentMatch && currentMatch.info) ?
+      currentMatch.info.find(row => row[0] === "参赛对象") : null;
+    const eduText = (realTarget && realTarget[1] && realTarget[1] !== "未核实")
+      ? ("这个比赛的参赛对象是：" + realTarget[1] + "。")
+      : "这个比赛面向高校在校生，具体以官方通知为准。";
     let tag = "ok", txt = eduText;
     if(equip.edu === "研究生"){
-      txt = eduText + "你作为研究生，可以报研究生组别，也能带团队，是加分项。";
+      txt = eduText + "你作为研究生，可以重点关注是否有研究生组别或能否带队，具体看这个比赛的组别设置。";
     } else if(equip.edu === "专科"){
-      txt = eduText + "专科可以走「职教赛道」，反而更对口，这条赛道竞争相对友好一些。";
+      txt = eduText + "专科参赛建议先确认这个比赛有没有对应赛道或组别，以官方为准。";
     } else {
-      txt = eduText + "本科生是主力人群，选择面比较广。";
+      txt = eduText + "本科是多数竞赛的主力人群，选择面通常较广。";
     }
     items.push({ title:"🛡️ 初始身份", tag:tag, text:txt, why:"依据：比赛「参赛对象」+ 你的学历「"+equip.edu+"」。" });
   } else {
@@ -1658,10 +1961,27 @@ function renderEval(){
 /* ===== 渲染「过来人经验」独立页（单列，一行一条）===== */
 function renderExp(){
   const expList = [];
-  if(equip.edu && EXP_LIBRARY.edu[equip.edu]) expList.push(...EXP_LIBRARY.edu[equip.edu]);
-  if(equip.major && EXP_LIBRARY.major[equip.major]) expList.push(EXP_LIBRARY.major[equip.major]);
-  if(equip.time && EXP_LIBRARY.time[equip.time]) expList.push(EXP_LIBRARY.time[equip.time]);
-  expList.push(...EXP_LIBRARY.common);
+
+  // 优先用 AI 针对「这个比赛」生成的真实经验
+  if(currentMatch && currentMatch.expTips && currentMatch.expTips.length){
+    currentMatch.expTips.forEach(tip => {
+      if(tip && tip.title){
+        expList.push({ title: tip.title, text: tip.text || "", src: "AI 结合实时搜索信息整理" });
+      }
+    });
+  }
+
+  // 兜底：用通用经验库（按装备匹配）
+  if(expList.length === 0){
+    if(equip.edu && EXP_LIBRARY.edu[equip.edu]) expList.push(...EXP_LIBRARY.edu[equip.edu]);
+    if(equip.major && EXP_LIBRARY.major[equip.major]) expList.push(EXP_LIBRARY.major[equip.major]);
+    if(equip.time && EXP_LIBRARY.time[equip.time]) expList.push(EXP_LIBRARY.time[equip.time]);
+    expList.push(...EXP_LIBRARY.common);
+  } else {
+    // 有 AI 经验时，也补 1 条通用避坑（选题/材料），增加实用性
+    expList.push(...EXP_LIBRARY.common);
+  }
+
   const seen = new Set();
   const finalExp = expList.filter(e=>{ if(seen.has(e.title)) return false; seen.add(e.title); return true; });
 
@@ -1674,7 +1994,7 @@ function renderExp(){
     '</div>'
   ).join("");
   document.getElementById("expPageNote").textContent =
-    "以上是参赛选手的公开经验分享，会随时间和赛道变化，仅供参考，请以官方通知为准。";
+    "以上内容结合了实时搜索信息与参赛经验，会随时间和赛道变化，仅供参考，请以官方通知为准。";
 }
 
 document.getElementById("evalGoBtn").addEventListener("click",()=>{
@@ -1902,7 +2222,7 @@ const ENCOURAGE = [
   "真正拉开差距的，从来不是起点，而是「别人停在原地、你还在往前走」。这一关，你又往前了一步。",
   "比赛的输赢是后话，能先把一件事的流程彻底摸透，这份「把模糊变清晰」的本事，你走到哪都用得上。"
 ];
-const REWARD_IMG = ["assets/reward_1.png","assets/reward_2.png","assets/reward_3.png","assets/reward_4.png"];
+const REWARD_IMG = ["assets/reward_1.jpg","assets/reward_2.jpg","assets/reward_3.jpg","assets/reward_4.jpg"];
 
 function checkPlanComplete(i){
   // 严格按计划表项数判断：每一项都必须为 true
