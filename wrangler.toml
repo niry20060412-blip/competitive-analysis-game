@@ -16,3 +16,9 @@ zone_name = "niry.cn"
 [assets]
 directory = "./site"
 binding = "ASSETS"
+
+# 用量统计数据库（记录搜索次数、AI 整理次数，供 /admin 后台查看）
+[[d1_databases]]
+binding = "DB"
+database_name = "comp-dungeon-db"
+database_id = "09e01ee3-b81e-4fca-98b3-12437cf56129"

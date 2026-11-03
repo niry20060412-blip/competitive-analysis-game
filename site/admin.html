@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竞赛副本 · 费用后台</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f1420; color: #e8ecf5; padding: 24px; min-height: 100vh; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #8899b0; font-size: 13px; margin-bottom: 20px; }
+  .card { background: #1a2130; border: 1px solid #2a3450; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; color: #7cc4ff; margin-bottom: 14px; letter-spacing: 1px; }
+  .login-row { display: flex; gap: 10px; }
+  input { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #2a3450; background: #0f1420; color: #e8ecf5; font-size: 14px; }
+  button { padding: 10px 20px; border-radius: 8px; border: none; background: #3b82f6; color: #fff; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #2f6fe0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat { background: #121a2a; border: 1px solid #22304a; border-radius: 10px; padding: 14px; }
+  .stat .label { font-size: 12px; color: #8899b0; margin-bottom: 6px; }
+  .stat .value { font-size: 24px; font-weight: 800; }
+  .stat .unit { font-size: 12px; color: #8899b0; margin-left: 4px; }
+  .stat .hint { font-size: 11px; color: #5f6f85; margin-top: 4px; }
+  .yellow { color: #ffd166; }
+  .green { color: #5fe08a; }
+  .red { color: #ff8c7a; }
+  .cyan { color: #4dd8e0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #22304a; }
+  th { color: #8899b0; font-weight: 600; font-size: 12px; }
+  td { color: #cfd7e6; }
+  .note { font-size: 12px; color: #8899b0; line-height: 1.7; }
+  .price-list { font-size: 13px; line-height: 1.9; color: #cfd7e6; }
+  .price-list b { color: #ffd166; }
+  .pl-item { padding: 8px 0; border-bottom: 1px solid #22304a; }
+  .pl-item:last-child { border-bottom: none; }
+  .pl-name { font-size: 14px; color: #e8ecf5; }
+  .pl-name b { color: #ffd166; }
+  .pl-where { font-size: 12px; color: #8899b0; margin-top: 3px; }
+  .err { color: #ff8c7a; font-size: 13px; margin-top: 10px; }
+  .hidden { display: none; }
+  .refresh { float: right; font-size: 12px; color: #8899b0; background: none; border: 1px solid #2a3450; padding: 4px 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📊 竞赛副本 · 费用后台</h1>
+  <div class="sub">汇总这个网站用到的所有 AI / 托管费用，不用再翻多个网站</div>
+
+  <!-- 登录 -->
+  <div class="card" id="loginCard">
+    <h2>🔐 输入密码查看</h2>
+    <div class="login-row">
+      <input type="password" id="pwdInput" placeholder="后台密码" onkeydown="if(event.key==='Enter')load()">
+      <button onclick="load()">查看</button>
+    </div>
+    <div class="err hidden" id="loginErr">密码错误</div>
+  </div>
+
+  <!-- 数据 -->
+  <div id="dataWrap" class="hidden">
+    <div class="card">
+      <h2>📅 今日用量 <button class="refresh" onclick="load()">刷新</button></h2>
+      <div class="grid">
+        <div class="stat"><div class="label">搜索调用</div><div class="value cyan" id="tSearch">-</div><div class="hint" id="tSearchFree"></div></div>
+        <div class="stat"><div class="label">AI 整理调用</div><div class="value green" id="tSummarize">-</div><div class="hint">调 ERNIE 整理次数</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧮 累计总量（自统计上线起）</h2>
+      <div class="grid">
+        <div class="stat"><div class="label">搜索总次数</div><div class="value cyan" id="cSearch">-</div></div>
+        <div class="stat"><div class="label">AI 整理总次数</div><div class="value green" id="cSummarize">-</div></div>
+        <div class="stat"><div class="label">输入 token</div><div class="value" id="cIn">-</div><div class="hint">估算</div></div>
+        <div class="stat"><div class="label">输出 token</div><div class="value" id="cOut">-</div><div class="hint">估算</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>💰 预估费用（按官方单价估算）</h2>
+      <div class="grid">
+        <div class="stat"><div class="label">搜索费用</div><div class="value yellow" id="eSearch">-</div></div>
+        <div class="stat"><div class="label">ERNIE 费用</div><div class="value yellow" id="eErnie">-</div></div>
+        <div class="stat"><div class="label">合计（估算）</div><div class="value red" id="eTotal">-</div></div>
+      </div>
+      <div class="note" id="eNote"></div>
+    </div>
+
+    <div class="card">
+      <h2>💵 费用单价表（当前）</h2>
+      <div class="price-list" id="priceList"></div>
+    </div>
+
+    <div class="card">
+      <h2>📋 每日明细（近 90 天）</h2>
+      <table>
+        <thead><tr><th>日期</th><th>搜索</th><th>AI整理</th><th>输入token</th><th>输出token</th></tr></thead>
+        <tbody id="dailyBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let pwd = localStorage.getItem('comp_admin_pwd') || '';
+
+function load(){
+  const input = document.getElementById('pwdInput').value.trim();
+  if(input) pwd = input;
+  if(!pwd){ document.getElementById('loginErr').classList.remove('hidden'); return; }
+  document.getElementById('loginErr').classList.add('hidden');
+
+  fetch('/api/admin?pwd=' + encodeURIComponent(pwd))
+    .then(r => {
+      if(r.status === 401) throw new Error('bad_pwd');
+      return r.json();
+    })
+    .then(d => {
+      if(!d.ok) throw new Error('bad_data');
+      localStorage.setItem('comp_admin_pwd', pwd);
+      document.getElementById('loginCard').classList.add('hidden');
+      document.getElementById('dataWrap').classList.remove('hidden');
+      render(d);
+    })
+    .catch(e => {
+      if(e.message === 'bad_pwd'){
+        document.getElementById('loginErr').classList.remove('hidden');
+      }
+    });
+}
+
+function render(d){
+  // 今日
+  document.getElementById('tSearch').textContent = d.today.search;
+  document.getElementById('tSearchFree').textContent = '剩余免费 ' + d.today.searchFreeLeft + ' 次';
+  document.getElementById('tSummarize').textContent = d.today.summarize;
+
+  // 累计
+  document.getElementById('cSearch').textContent = d.total.search;
+  document.getElementById('cSummarize').textContent = d.total.summarize;
+  document.getElementById('cIn').textContent = fmtNum(d.total.inputTokens);
+  document.getElementById('cOut').textContent = fmtNum(d.total.outputTokens);
+
+  // 费用
+  document.getElementById('eSearch').textContent = '¥' + d.estimate.searchCost;
+  document.getElementById('eErnie').textContent = '¥' + d.estimate.ernieCost;
+  document.getElementById('eTotal').textContent = '¥' + d.estimate.totalCost;
+  document.getElementById('eNote').textContent = d.estimate.note;
+
+  // 价格表
+  const p = d.price;
+  document.getElementById('priceList').innerHTML =
+    '<div class="pl-item"><div class="pl-name">百度 AI 搜索 <b>¥' + p.searchPerCall + ' / 次</b>（每日免费 ' + p.searchFreeDaily + ' 次）</div>' +
+      '<div class="pl-where">↳ 对应环节：用户在首页/搜索框「搜一个比赛」时触发，每搜一次扣 1 次</div></div>' +
+    '<div class="pl-item"><div class="pl-name">ERNIE-5.1 输入 <b>¥' + p.ernieInPerK + ' / 千 token</b></div>' +
+      '<div class="pl-where">↳ 对应环节：AI 整理「比赛情报 / 过来人经验 / 赛段路线」时，把资料喂给 AI 的过程</div></div>' +
+    '<div class="pl-item"><div class="pl-name">ERNIE-5.1 输出 <b>¥' + p.ernieOutPerK + ' / 千 token</b></div>' +
+      '<div class="pl-where">↳ 对应环节：AI 整理后「吐出来的内容」，每写一段字就按输出 token 计费</div></div>' +
+    '<div class="pl-item"><div class="pl-name">Cloudflare Worker <b>免费</b>（每日 10 万请求，用不完）</div>' +
+      '<div class="pl-where">↳ 对应环节：整个网站托管（comp.niry.cn 所有页面 + 接口），基本不花钱</div></div>';
+
+  // 明细
+  document.getElementById('dailyBody').innerHTML = d.daily.map(r =>
+    '<tr><td>'+r.day+'</td><td>'+r.search+'</td><td>'+r.summarize+'</td><td>'+fmtNum(r.inTokens)+'</td><td>'+fmtNum(r.outTokens)+'</td></tr>'
+  ).join('');
+}
+
+function fmtNum(n){
+  if(n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if(n >= 1000) return (n/1000).toFixed(1) + 'k';
+  return String(n);
+}
+
+// 已存过密码就直接加载
+if(pwd) load();
+</script>
+</body>
+</html>

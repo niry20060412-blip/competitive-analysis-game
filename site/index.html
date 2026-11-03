@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>欢迎挑战竞赛副本</title>
+<title>欢迎挑战竞赛副本（效果演示）</title>
 <style>
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;}
@@ -75,6 +75,7 @@
   /* 主题切换 */
   .theme-toggle{ position:absolute; top:14px; right:14px; z-index:20; cursor:pointer; background:rgba(0,0,0,.3); border:2px solid rgba(255,255,255,.5); border-radius:10px; padding:7px 14px; font-size:14px; color:#fff; font-weight:700; letter-spacing:1px; white-space:nowrap; }
   .theme-toggle:hover{ background:rgba(0,0,0,.45); }
+  .demo-banner{ position:absolute; top:14px; left:14px; z-index:20; background:rgba(255,209,102,.15); border:2px solid rgba(255,209,102,.6); border-radius:10px; padding:7px 14px; font-size:13px; color:#ffd166; font-weight:700; letter-spacing:.5px; white-space:nowrap; backdrop-filter:blur(3px); }
 
   /* ===== 输入页 ===== */
   .input-card{ background:rgba(0,0,0,.42); border-radius:18px; padding:24px 20px; width:min(440px,88vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.2); }
@@ -130,6 +131,8 @@
   .intel-row:last-child{ border-bottom:none; }
   .intel-row .k{ flex:0 0 76px; color:#ffd166; font-weight:700; }
   .intel-row .v{ flex:1; color:#e8e3f8; }
+  .intel-trustbar{ background:rgba(255,120,120,.10); border:1px solid rgba(255,120,120,.4); border-radius:10px; padding:9px 12px; font-size:12px; color:#ffb3b3; line-height:1.6; margin:0 0 12px; }
+  .rule-mark{ display:inline-block; margin-left:8px; font-size:10px; font-weight:600; color:#ffd0a0; background:rgba(255,140,60,.12); border:1px solid rgba(255,140,60,.35); border-radius:6px; padding:1px 6px; vertical-align:middle; }
   .intel-levels{ margin-top:14px; }
   .intel-levels .lv{ display:flex; align-items:center; gap:10px; padding:8px 0; font-size:14px; color:#ddd5f5; }
   .intel-levels .lv .n{ display:inline-flex; min-width:24px; height:24px; align-items:center; justify-content:center; background:#ff8c42; color:#fff; border-radius:6px; font-weight:800; font-size:13px; }
@@ -152,6 +155,9 @@
   .pick-opt .po-desc{ font-size:12.5px; color:rgba(255,255,255,.68); margin-top:5px; line-height:1.6; }
   .pick-opt .po-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; gap:8px; }
   .pick-opt .po-tag{ display:inline-block; font-size:11px; padding:2px 8px; border-radius:6px; background:rgba(255,209,102,.18); color:#ffd166; border:1px solid rgba(255,209,102,.45); }
+  .pick-opt .po-tag-done{ background:rgba(95,224,138,.18); color:#5fe08a; border:1px solid rgba(95,224,138,.5); }
+  .pick-opt .po-tag-lock{ background:rgba(255,255,255,.08); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.2); }
+  .pick-opt.pick-lock{ opacity:.55; }
   .pick-opt .po-src{ font-size:12px; color:#4dd8e0; text-decoration:none; font-weight:700; white-space:nowrap; }
   .pick-opt .po-src:hover{ text-decoration:underline; }
   .pick-none{ text-align:center; color:rgba(255,255,255,.6); font-size:13px; line-height:1.8; padding:10px 0; }
@@ -174,6 +180,44 @@
   .eq-opt .gicon{ margin-right:5px; }
   .equip-card .px-btn{ width:100%; margin-top:6px; }
 
+  /* ===== 测评页（首页入口，先做测评再推荐比赛）===== */
+  .quiz-card{ background:rgba(0,0,0,.5); border-radius:18px; padding:24px 22px; width:min(520px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
+  .quiz-card h2{ text-align:center; margin:0 0 2px; font-size:20px; letter-spacing:2px; color:#4dd8e0; }
+  .quiz-card .q-sub{ text-align:center; color:rgba(255,255,255,.72); font-size:12.5px; margin:0 0 14px; line-height:1.6; }
+  .quiz-progress{ text-align:center; font-size:12px; color:#4dd8e0; margin:0 0 12px; letter-spacing:1px; }
+  .quiz-q{ margin-bottom:16px; }
+  .quiz-q .q-label{ font-size:14px; font-weight:700; color:#ffd166; margin-bottom:8px; letter-spacing:1px; }
+  .quiz-q .q-label .q-no{ display:inline-block; min-width:20px; height:20px; line-height:20px; text-align:center; background:#ff8c42; color:#fff; border-radius:6px; font-size:12px; margin-right:6px; }
+  .quiz-card .eq-opts{ display:flex; flex-wrap:wrap; gap:8px; }
+  .quiz-card .px-btn{ width:100%; margin-top:6px; }
+  .quiz-skip{ display:block; margin:10px auto 0; background:none; border:none; color:rgba(255,255,255,.55); cursor:pointer; font-size:12.5px; text-decoration:underline; }
+
+  /* ===== 推荐结果页（测评后直接给结论，不再让用户搜/选）===== */
+  .rec-card{ background:rgba(0,0,0,.5); border-radius:18px; padding:24px 20px; width:min(560px,94vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
+  .rec-card h2{ text-align:center; margin:0 0 2px; font-size:20px; letter-spacing:2px; color:#5fe08a; }
+  .rec-card .rec-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:13px; margin:0 0 6px; line-height:1.6; }
+  .rec-gear{ text-align:center; font-size:12px; color:rgba(255,255,255,.55); margin:0 0 14px; }
+  .rec-item{ border:2px solid rgba(255,255,255,.18); border-radius:14px; padding:16px; margin:12px 0; background:rgba(255,255,255,.05); cursor:pointer; transition:.14s; }
+  .rec-item:hover{ border-color:#5fe08a; background:rgba(95,224,138,.08); transform:translateY(-2px); }
+  .rec-item.rec-top{ border-color:rgba(255,209,102,.6); background:rgba(255,209,102,.08); }
+  .rec-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .rec-name{ font-size:16px; font-weight:900; color:#fff; letter-spacing:.5px; line-height:1.4; }
+  .rec-rank{ flex:none; font-size:11px; padding:3px 10px; border-radius:999px; font-weight:800; white-space:nowrap; }
+  .rec-rank.r1{ background:#ffd166; color:#3a2a00; }
+  .rec-rank.r2{ background:#e8e3f8; color:#2a2440; }
+  .rec-rank.r3{ background:#e0a06a; color:#3a2408; }
+  .rec-stars{ font-size:13px; color:#ffd166; letter-spacing:1px; margin:6px 0 2px; }
+  .rec-tags{ display:flex; flex-wrap:wrap; gap:6px; margin:6px 0; }
+  .rec-tags span{ font-size:11px; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,.1); color:rgba(255,255,255,.75); border:1px solid rgba(255,255,255,.18); }
+  .rec-why{ font-size:13px; color:#7be3a0; line-height:1.7; margin-top:8px; }
+  .rec-why b{ color:#ffd166; }
+  .rec-info{ margin-top:8px; }
+  .rec-info .ri-row{ display:flex; gap:8px; padding:4px 0; font-size:12.5px; border-bottom:1px dashed rgba(255,255,255,.08); }
+  .rec-info .ri-row:last-child{ border-bottom:none; }
+  .rec-info .ri-k{ flex:0 0 60px; color:#ffd166; font-weight:700; }
+  .rec-info .ri-v{ flex:1; color:#e8e3f8; }
+  .rec-go{ display:inline-block; margin-top:10px; font-size:13px; color:#5fe08a; font-weight:800; }
+
   /* ===== 装备测评页 ===== */
   .eval-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(560px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
   .eval-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#5fe08a; }
@@ -194,11 +238,14 @@
   /* ===== 过来人经验页 ===== */
   .exp-page-card{ background:rgba(0,0,0,.48); border-radius:18px; padding:26px 24px; width:min(560px,92vw); backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.22); max-height:88vh; overflow-y:auto; }
   .exp-page-card h2{ text-align:center; margin:0 0 4px; font-size:20px; letter-spacing:2px; color:#ffd166; }
-  .exp-page-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 16px; }
+  .exp-page-sub{ text-align:center; color:rgba(255,255,255,.75); font-size:12.5px; margin:0 0 12px; }
+  .exp-trustbar{ background:rgba(255,209,102,.12); border:1px solid rgba(255,209,102,.45); border-radius:10px; padding:10px 12px; font-size:12px; color:#ffe3a3; line-height:1.6; margin:0 0 12px; }
   .exp-card{ border:2px solid rgba(255,209,102,.35); border-radius:12px; padding:12px 14px; margin:10px 0; background:rgba(20,16,38,.72); }
   .exp-card .ex-title{ font-size:14px; font-weight:800; color:#ffd166; margin-bottom:5px; }
+  .exp-card .ex-tag{ display:inline-block; margin-left:6px; font-size:10px; font-weight:600; color:#ffd9a0; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:1px 6px; vertical-align:middle; }
   .exp-card .ex-text{ font-size:13px; color:#e8e3f8; line-height:1.7; }
   .exp-card .ex-src{ font-size:11px; color:rgba(255,255,255,.5); margin-top:6px; }
+  .exp-card .ex-link{ display:inline-block; color:#4dd8e0; text-decoration:underline; cursor:pointer; }
   .exp-page-note{ font-size:11.5px; color:rgba(255,255,255,.55); line-height:1.6; margin-top:10px; }
 
   /* ===== 关卡地图页 ===== */
@@ -218,6 +265,9 @@
   }
   .map-node.done .dot{ background:#1d7a45; border-color:#5fe08a; box-shadow:0 0 14px rgba(95,224,138,.6); }
   .map-node.current .dot{ transform:scale(1.15); }
+  .map-node.locked .dot{ background:#1c1830; border-color:rgba(255,255,255,.22); box-shadow:none; opacity:.55; filter:grayscale(.6); }
+  .map-node.locked .nm{ color:rgba(255,255,255,.4); }
+  .map-node.locked .rt, .map-node.locked .rt2{ color:rgba(255,255,255,.28); }
   .map-node:hover .dot{ transform:scale(1.1); }
   .map-node .nm{ font-size:14px; font-weight:800; margin-top:10px; text-align:center; color:#fff; }
   .map-node .rt{ font-size:11.5px; color:rgba(255,255,255,.62); margin-top:3px; text-align:center; }
@@ -325,7 +375,6 @@
     .progress-card .p-title{ font-size:16px; }
   }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
 </head>
 <body>
 
@@ -341,13 +390,103 @@
   <!-- 主题切换 -->
   <div class="theme-toggle" id="themeToggle">🌙 切夜晚</div>
 
+  <!-- 演示模式提示（?demo=1 时显示）-->
+  <div class="demo-banner" id="demoBanner" style="display:none;">🧪 演示模式 · AI 结果为预置示例，非实时搜索</div>
+
   <!-- ===== 第 1 页：欢迎 ===== -->
   <div class="page" id="pageWelcome">
-    <h1 class="px-title" id="welcomeTitle">欢迎挑战竞赛副本</h1>
-    <p class="px-sub">选一个入口，进入你的副本世界</p>
+    <h1 class="px-title" id="welcomeTitle">欢迎挑战竞赛副本（效果演示）</h1>
+    <p class="px-sub">先花 20 秒测出「你适合打哪几场比赛」，再带你一关关打下来</p>
     <div class="btn-row">
-      <button class="px-btn" id="enterBtn">⚔️ 进入副本</button>
-      <button class="px-btn small" id="demoBtn">试试示例副本</button>
+      <button class="px-btn" id="enterBtn">🎯 先做测评</button>
+      <button class="px-btn small" id="demoBtn">先看个示例副本</button>
+      <button class="px-btn small" id="skipToSearchBtn">直接搜比赛名字</button>
+    </div>
+  </div>
+
+  <!-- ===== 第 1.5 页：测评（先了解你，再推荐适合的比赛）===== -->
+  <div class="page hidden" id="pageQuiz">
+    <div class="quiz-card">
+      <h2>🎯 你的参赛档案</h2>
+      <p class="q-sub">花 20 秒填一下，我帮你算出「你现在最适合打哪几场比赛」。跳过也没关系。</p>
+      <div class="quiz-progress" id="quizProgress"></div>
+
+      <div class="quiz-q">
+        <div class="q-label"><span class="q-no">1</span>你的学历是？</div>
+        <div class="eq-opts" id="quizEdu">
+          <div class="eq-opt" data-v="专科"><span class="gicon">🧱</span>专科</div>
+          <div class="eq-opt" data-v="本科"><span class="gicon">📚</span>本科</div>
+          <div class="eq-opt" data-v="研究生"><span class="gicon">🔬</span>研究生</div>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-label"><span class="q-no">2</span>你的年级是？</div>
+        <div class="eq-opts" id="quizGrade"></div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-label"><span class="q-no">3</span>你的专业大类是？</div>
+        <div class="eq-opts" id="quizMajor">
+          <div class="eq-opt" data-v="理工"><span class="gicon">⚙️</span>理工</div>
+          <div class="eq-opt" data-v="计算机/信息"><span class="gicon">💻</span>计算机/信息</div>
+          <div class="eq-opt" data-v="经管"><span class="gicon">📈</span>经管</div>
+          <div class="eq-opt" data-v="文史哲"><span class="gicon">📜</span>文史哲</div>
+          <div class="eq-opt" data-v="法学"><span class="gicon">⚖️</span>法学</div>
+          <div class="eq-opt" data-v="教育学"><span class="gicon">🎓</span>教育学</div>
+          <div class="eq-opt" data-v="艺术/设计"><span class="gicon">🎨</span>艺术/设计</div>
+          <div class="eq-opt" data-v="医学"><span class="gicon">🩺</span>医学</div>
+          <div class="eq-opt" data-v="农学"><span class="gicon">🌾</span>农学</div>
+          <div class="eq-opt" data-v="体育"><span class="gicon">🏅</span>体育</div>
+          <div class="eq-opt" data-v="外语"><span class="gicon">🌍</span>外语</div>
+          <div class="eq-opt" data-v="其他"><span class="gicon">✨</span>其他</div>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-label"><span class="q-no">4</span>每周能投入多少时间？</div>
+        <div class="eq-opts" id="quizTime">
+          <div class="eq-opt" data-v="很少"><span class="gicon">🪫</span>很少（每周 &lt;5h）</div>
+          <div class="eq-opt" data-v="一般"><span class="gicon">🔋</span>一般（每周 5~15h）</div>
+          <div class="eq-opt" data-v="充足"><span class="gicon">🔋🔋</span>充足（每周 &gt;15h）</div>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-label"><span class="q-no">5</span>你现在手头有什么？</div>
+        <div class="eq-opts" id="quizType">
+          <div class="eq-opt" data-v="有项目"><span class="gicon">💼</span>有个正在做的项目/作品</div>
+          <div class="eq-opt" data-v="有人带"><span class="gicon">🤝</span>有学长学姐或老师带</div>
+          <div class="eq-opt" data-v="从零开始"><span class="gicon">🌱</span>基本从零开始</div>
+          <div class="eq-opt" data-v="不确定"><span class="gicon">🤷</span>不确定 / 帮我推荐</div>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-label"><span class="q-no">6</span>你想从比赛里得到什么？</div>
+        <div class="eq-opts" id="quizGoal">
+          <div class="eq-opt" data-v="拿奖加分"><span class="gicon">🏆</span>拿奖 / 保研加分</div>
+          <div class="eq-opt" data-v="攒经历"><span class="gicon">📄</span>攒一段写进简历的经历</div>
+          <div class="eq-opt" data-v="认识人"><span class="gicon">🔗</span>认识人、进圈子</div>
+          <div class="eq-opt" data-v="都行"><span class="gicon">🤷</span>都行 / 帮我推荐</div>
+        </div>
+      </div>
+
+      <button class="px-btn" id="quizDoneBtn">🚀 生成我的推荐</button>
+      <button class="quiz-skip" id="quizSkipBtn">先跳过，直接去搜比赛</button>
+      <div class="mini-row"><button class="mini-back" id="quizBackBtn">← 返回首页</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 1.6 页：推荐结果（测评后直接给结论）===== -->
+  <div class="page hidden" id="pageRecommend">
+    <div class="rec-card">
+      <h2>🎯 最适合你的比赛</h2>
+      <p class="rec-sub">根据你的情况，我帮你挑好了这几个。点进去就能一关关打下来，不用你自己搜、自己选。</p>
+      <div class="rec-gear" id="recGear"></div>
+      <div id="recList"></div>
+      <button class="px-btn small" id="recSearchBtn" style="width:100%;margin-top:14px;">🔍 都不满意？自己去搜一个</button>
+      <div class="mini-row"><button class="mini-back" id="recBackBtn">← 返回改测评</button></div>
     </div>
   </div>
 
@@ -373,6 +512,10 @@
       <div class="mini-row"><button class="mini-back" id="backBtn">← 返回上一步</button></div>
     </div>
   </div>
+
+  <!-- 隐藏的文件选择器：图片/文件上传 -->
+  <input type="file" id="imageFileInput" accept="image/*" style="display:none;" />
+  <input type="file" id="docFileInput" accept=".txt,.md,.doc,.docx,.pdf,.rtf" style="display:none;" />
 
   <!-- ===== 第 2.5 页：链接抓取 ===== -->
   <div class="page hidden" id="pageLinkForm">
@@ -456,6 +599,44 @@
     </div>
   </div>
 
+  <!-- ===== 第 3.5 页：确认识别结果（图片/文件上传后核对）===== -->
+  <div class="page hidden" id="pageConfirm">
+    <div class="textform-card">
+      <h2>🔍 我读到了这些信息，请你核对</h2>
+      <p class="tf-tip" style="color:#ffd166;">这是从你上传的图片/文件里识别出来的，可能不完全准。请你逐项看一眼，<b>有错直接改</b>，改完再继续。</p>
+      <div class="tf-group">
+        <label>比赛名称 *</label>
+        <input class="tf-input" id="cfName" placeholder="例如：中国国际大学生创新大赛" />
+      </div>
+      <div class="tf-group">
+        <label>主办方</label>
+        <input class="tf-input" id="cfHost" placeholder="例如：教育部" />
+      </div>
+      <div class="tf-group">
+        <label>赛制流程</label>
+        <input class="tf-input" id="cfSystem" placeholder="例如：校级初赛→省级复赛→总决赛" />
+      </div>
+      <div class="tf-group">
+        <label>参赛对象</label>
+        <input class="tf-input" id="cfTarget" placeholder="例如：全日制在校大学生" />
+      </div>
+      <div class="tf-group">
+        <label>报名入口</label>
+        <input class="tf-input" id="cfUrl" placeholder="例如：cy.ncss.cn" />
+      </div>
+      <div class="tf-group">
+        <label>赛道 / 组别</label>
+        <input class="tf-input" id="cfTrack" placeholder="例如：高教主赛道" />
+      </div>
+      <div class="tf-group">
+        <label>时间安排</label>
+        <input class="tf-input" id="cfTime" placeholder="例如：4-7月报名，9月总决赛" />
+      </div>
+      <button class="px-btn" id="cfOkBtn" style="width:100%;">✅ 核对无误，生成副本情报</button>
+      <div class="mini-row"><button class="mini-back" id="cfBackBtn">← 返回上一步</button></div>
+    </div>
+  </div>
+
   <!-- ===== 第 3.5 页：选择比赛（确认搜到的到底是哪个比赛）===== -->
   <div class="page hidden" id="pagePickComp">
     <div class="pick-card">
@@ -475,6 +656,7 @@
       <div class="intel-name" id="intelName"></div>
       <div class="intel-badge" id="intelBadge" style="display:none;"></div>
       <div class="intel-refining" id="intelRefining" style="display:none;">🤖 正在用 AI 深化整理，几秒后自动升级成更清晰的信息…</div>
+      <div class="intel-trustbar" id="intelTrustbar">⚠️ 报名时间、参赛对象、报名入口等<b>关键规则请以官方通知为准</b>，下方「参考来源」可点开原文核实。</div>
       <p class="i-sub">请确认这份比赛信息无误，确认后进入选装备</p>
       <div id="intelRows"></div>
       <div class="intel-levels">
@@ -563,23 +745,37 @@
   <div class="page hidden" id="pageExp">
     <div class="exp-page-card">
       <h2>👀 过来人怎么说</h2>
-      <p class="exp-page-sub">针对「<span id="expPageMatch"></span>」的参赛经验，仅供参考，非官方结论</p>
+      <p class="exp-page-sub">针对「<span id="expPageMatch"></span>」的参赛经验</p>
+      <div class="exp-trustbar">
+        👤 以下都是<b>过来人的个人经验</b>，不是官方规定。可以当参考，但<b>报名时间、赛制、参赛条件等关键规则，请以官方通知为准</b>。
+      </div>
       <div id="expPageList"></div>
       <div class="exp-page-note" id="expPageNote"></div>
       <div class="mini-row"><button class="mini-back" id="expBackBtn">← 返回装备测评</button></div>
     </div>
   </div>
 
-  <!-- ===== 第 6 页：关卡地图 ===== -->
+  <!-- ===== 第 5.7 页：选择当前赛段 ===== -->
+  <div class="page hidden" id="pageStagePick">
+    <div class="pick-card">
+      <h2>🚩 你现在走到哪一步了？</h2>
+      <p class="pk-sub">先选一下你现在处于哪个赛段，我只带你走<b>这一段</b>，完成后再接着往下走，不一口气跑完。</p>
+      <div class="pick-list" id="stagePickList"></div>
+      <div class="mini-row"><button class="mini-back" id="stagePickBackBtn">← 返回装备测评</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 第 6 页：关卡地图（当前赛段内部的闯关路线）===== -->
   <div class="page hidden" id="pageMap">
     <div class="map-card">
-      <h2>🗺️ 关卡地图</h2>
+      <h2 id="mapTitle">🗺️ 关卡地图</h2>
       <p class="m-sub" id="mapSub">从第一关开始，逐个击破</p>
       <div class="map-track" id="mapTrack"></div>
       <div class="mini-row" style="margin-top:20px;">
         <button class="px-btn" id="totalRewardBtn" style="display:none;">🏆 查看总奖励</button>
+        <button class="px-btn" id="nextStageBtn" style="display:none;">✅ 走完这段了，进入下一赛段 ›</button>
       </div>
-      <div class="mini-row"><button class="mini-back" id="mapBackBtn">← 返回上一步</button></div>
+      <div class="mini-row"><button class="mini-back" id="mapBackBtn">← 返回重选赛段</button></div>
     </div>
   </div>
 
@@ -603,7 +799,7 @@
     <div class="plan-card">
       <h2 id="planTitle"></h2>
       <p class="plan-real" id="planReal"></p>
-      <div class="plan-hint">勾完全部，就解锁这一关的阶段成果</div>
+      <div class="plan-hint">🎁 把这关的计划表全部勾完，会掉落一份「电子奖励」——把这一步做成实打实的成果留给你</div>
       <div id="planList"></div>
       <div class="plan-actions">
         <button class="px-btn small" id="exportImgBtn">🖼️ 导出图片</button>
@@ -634,55 +830,6 @@
 </div>
 
 <script>
-/* ===== 云服务初始化（免密钥大模型调用） ===== */
-let cloud = null;
-let cloudReady = false;
-window.__cloudInit = { sdkLoaded: false, initOk: false, err: "" };
-try {
-  if (typeof WorkBuddyCloud !== "undefined" && WorkBuddyCloud.createWorkBuddyCloud) {
-    window.__cloudInit.sdkLoaded = true;
-    cloud = WorkBuddyCloud.createWorkBuddyCloud({
-      endpoint: "https://competition-dungeon.app.workbuddy.host",
-      oauthRelayBaseUrl: "https://www.workbuddy.cn/v2/as/genie-baas/oauth",
-      publishableKey: "wbpk_y632jG35TevEaspK8IZ2l5_r3LYP43o5HBSEGlWmF3vYEj9LJa0pljz",
-    });
-    cloudReady = true;
-    window.__cloudInit.initOk = true;
-  } else {
-    window.__cloudInit.err = "WorkBuddyCloud 未定义（SDK 未加载成功）";
-  }
-} catch(e) {
-  cloud = null;
-  cloudReady = false;
-  window.__cloudInit.err = String(e && e.message || e);
-}
-
-/* 选一个适合做「结构化 JSON 输出」的对话模型：
-   跳过 onlyReasoning（纯思考模型，不接受 json_object），优先普通对话模型 */
-let _pickedModelId = null;
-async function pickChatModel(){
-  if(_pickedModelId) return _pickedModelId;
-  let models = [];
-  try { models = await cloud.llm.models.list(); } catch(e){ models = []; }
-  if(models && models.length){
-    const isUsable = m => m && (m.enabled !== false) && (m.disabled !== true);
-    // 1) 优先：明确适合对话且非纯推理的模型（hunyuan-chat 等）
-    const chatLike = models.find(m => isUsable(m) && m.onlyReasoning !== true && !/^(auto|default)$/i.test(m.id||""));
-    // 2) 次选：任意非 auto/default、非纯推理的
-    const normal = models.find(m => isUsable(m) && m.onlyReasoning !== true && m.supportsReasoning !== true && !/^(auto|default)$/i.test(m.id||""));
-    // 3) 再退：deepseek-v4-pro / glm-4.7 这类已知稳定的
-    const known = models.find(m => isUsable(m) && /^(deepseek-v4-pro|glm-4\.7|glm-4\.6|hunyuan-chat)$/i.test(m.id||""));
-    const pick = chatLike || normal || known || models.find(m => isUsable(m) && !/^(auto|default)$/i.test(m.id||"")) || models[0];
-    if(pick && pick.id){
-      _pickedModelId = pick.id;
-      return _pickedModelId;
-    }
-  }
-  // 兜底：一个稳定的对话模型 id
-  _pickedModelId = "hunyuan-chat";
-  return _pickedModelId;
-}
-
 /* ===== 白天黑夜切换 ===== */
 const stage = document.getElementById("stage");
 const themeToggle = document.getElementById("themeToggle");
@@ -790,13 +937,61 @@ setInterval(autoTheme,30000); autoTheme();
 
 /* ===== 页面切换 ===== */
 function showPage(id){
-  ["pageWelcome","pageInput","pageLinkForm","pagePasteForm","pageTextForm","pageProgress","pagePickComp","pageIntel","pageEquip","pageEval","pageExp","pageMap","pageTask","pagePlan"].forEach(p=>document.getElementById(p).classList.add("hidden"));
+  ["pageWelcome","pageQuiz","pageRecommend","pageInput","pageLinkForm","pagePasteForm","pageTextForm","pageProgress","pageConfirm","pagePickComp","pageIntel","pageEquip","pageEval","pageExp","pageStagePick","pageMap","pageTask","pagePlan"].forEach(p=>document.getElementById(p).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
 
 const pBossName=document.getElementById("pBossName");
 
-document.getElementById("enterBtn").addEventListener("click",()=>showPage("pageInput"));
+/* ===== 演示模式（?demo=1）：AI 结果全部用预置假数据，零额度消耗 ===== */
+// 通过 URL 参数 ?demo=1 或 ?demo 开启。开启后所有后端 AI 调用（搜索/整理/识别）都被短路，不发任何网络请求、不碰你的百度 key。
+const DEMO_MODE = (function(){
+  try {
+    const q = new URLSearchParams(window.location.search);
+    return q.get("demo") === "1" || q.has("demo") || q.get("demo") === "";
+  } catch(e){ return false; }
+})();
+
+// 演示模式下的假搜索结果（模拟「中国国际大学生创新大赛」的联网搜索返回）
+const DEMO_SEARCH_RESULTS = [
+  { title:"中国国际大学生创新大赛 - 全国大学生创业服务网", url:"https://cy.ncss.cn", snippet:"由教育部等多部委联合主办的创新创业赛事，采用校级初赛、省级复赛、全国总决赛三级赛制，报名时间通常为4—7月。", source:"cy.ncss.cn" },
+  { title:"中国国际大学生创新大赛赛事介绍", url:"https://cy.ncss.cn", snippet:"面向高校在校生及毕业5年内毕业生，设高教主赛道、青年红色筑梦之旅、职教赛道、产业赛道等多个赛道。", source:"cy.ncss.cn" },
+  { title:"创新大赛参赛常见问题解答", url:"https://cy.ncss.cn", snippet:"参赛对象为高校在校生（在读学籍），年龄不超过35岁，可个人或团队参赛。", source:"cy.ncss.cn" }
+];
+
+// 演示模式下的假「AI 整理结果」（对应 DEMO 情报的字段结构）
+const DEMO_INTEL = {
+  name:"中国国际大学生创新大赛",
+  host:"教育部等多部委联合主办",
+  system:"校级初赛 → 省级复赛 → 总决赛（三级赛制）",
+  target:"高校在校生（在读学籍）；毕业5年内高校毕业生也可；年龄≤35岁",
+  url:"全国大学生创业服务网 cy.ncss.cn",
+  track:"高教主赛道 / 青年红色筑梦之旅 / 职教赛道 / 产业赛道 / 萌芽赛道",
+  time:"4—7月报名 → 5—8月初赛复赛 → 9月总决赛",
+  stages:["报名","校级初赛","省级复赛","总决赛"],
+  eval:"这是教育部主办的顶级双创赛事，适合想冲高含金量奖项的同学，但战线长、要求高，建议有项目雏形再报。",
+  exp:[
+    { title:"先选对赛道再报名", text:"赛道选错后面全白费，报名前先搞清楚自己项目属于哪个赛道，别急着提交。" },
+    { title:"材料真实最重要", text:"评委对抄袭和数据造假零容忍，宁可数据小一点，也要保证真实。" },
+    { title:"答辩练到能脱稿", text:"3—5分钟的讲解，背稿子不如把逻辑理顺，能用一句话说清项目价值就成功了一半。" }
+  ]
+};
+
+// 演示模式下的假「过来人经验」（图片/文件识别流程里可能用到）
+const DEMO_EXP = [
+  { title:"先选对赛道再报名", text:"赛道选错后面全白费，报名前先搞清楚自己项目属于哪个赛道。" },
+  { title:"材料真实最重要", text:"评委对抄袭和数据造假零容忍，宁可数据小一点，也要保证真实。" },
+  { title:"答辩练到能脱稿", text:"能用一句话说清项目价值，比背稿子更重要。" }
+];
+
+// 演示模式下：显示顶部横幅提示
+if(DEMO_MODE){
+  const banner = document.getElementById("demoBanner");
+  if(banner) banner.style.display = "block";
+}
+
+document.getElementById("enterBtn").addEventListener("click",()=>enterQuiz());
+document.getElementById("skipToSearchBtn").addEventListener("click",()=>showPage("pageInput"));
 document.getElementById("backBtn").addEventListener("click",()=>showPage("pageWelcome"));
 
 document.getElementById("demoBtn").addEventListener("click",()=>{
@@ -815,9 +1010,9 @@ document.querySelectorAll(".method").forEach(m=>{
     } else if(type === "link"){
       showPage("pageLinkForm");
     } else if(type === "image"){
-      alert("「图片」方式：第一版暂不识别图片内容。后续接入 AI 后，上传通知截图就能自动提取比赛信息。");
+      document.getElementById("imageFileInput").click();
     } else if(type === "file"){
-      alert("「文件」方式：第一版暂不解析文档。后续接入 AI 后，上传通知文件就能自动提取。");
+      document.getElementById("docFileInput").click();
     }
   });
 });
@@ -826,7 +1021,95 @@ document.querySelectorAll(".method").forEach(m=>{
 function resetProgressState(){
   clearedLevels = [false,false,false,false];
   currentLevel = -1;
+  currentStage = 0;
+  stagePicked = false;
   planChecked = [[],[],[],[]];
+}
+
+/* ===== 图片/文件上传识别 ===== */
+// 图片：读 base64 → 后端视觉模型识别文字 → 走 AI 抽取
+document.getElementById("imageFileInput").addEventListener("change",(e)=>{
+  const file = e.target.files && e.target.files[0];
+  e.target.value = ""; // 允许重复选同一张
+  if(!file) return;
+  if(!/^image\//.test(file.type)){
+    alert("请选择图片文件（截图、海报照片都可以）。");
+    return;
+  }
+  if(file.size > 8 * 1024 * 1024){
+    alert("图片太大了（超过 8MB），请换一张小一点的截图。");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64 = String(reader.result).split(",")[1] || String(reader.result);
+    ocrAndExtract({ image: base64 }, "图片");
+  };
+  reader.onerror = () => alert("读取图片失败，请重试。");
+  reader.readAsDataURL(file);
+});
+
+// 文件：读文本 → 走 AI 抽取
+document.getElementById("docFileInput").addEventListener("change",(e)=>{
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if(!file) return;
+  const name = (file.name || "").toLowerCase();
+  // 纯文本类文件直接读
+  if(/\.(txt|md|rtf|csv)$/.test(name)){
+    if(file.size > 2 * 1024 * 1024){
+      alert("文件太大了（超过 2MB），请换一个，或把正文复制粘贴到「文字」方式。");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => ocrAndExtract({ text: String(reader.result).slice(0, 12000) }, "文件");
+    reader.onerror = () => alert("读取文件失败，请重试。");
+    reader.readAsText(file, "utf-8");
+  } else if(/\.(docx?|pdf)$/.test(name)){
+    // Word/PDF 这类二进制格式，浏览器没法直接读文字
+    alert("这个格式（Word/PDF）我暂时没法直接读文字。\n\n最快的方式：打开文件，把正文复制粘贴到「文字」方式里，我用 AI 帮你整理。\n\n（也欢迎你把通知内容截图，用「图片」方式上传。）");
+    showPage("pageTextForm");
+  } else {
+    alert("暂不支持这个文件格式。\n\n请换成 .txt / .md 文本文件，或直接把内容粘贴到「文字」方式。");
+  }
+});
+
+// 调后端识别图片文字，或直接拿文本 → 进入 AI 抽取流程
+async function ocrAndExtract(payload, label){
+  // 进入进度页，提示正在识别
+  resetProgressState();
+  pBossName.textContent = "正在识别你上传的" + label + "…";
+  showPage("pageProgress");
+  runProgress();
+  const btnHint = document.getElementById("pBored");
+  if(btnHint) btnHint.textContent = "🔍 正在提取图片里的文字…";
+
+  // 演示模式：不调后端识别，直接进入确认页（用预置情报）
+  if(DEMO_MODE){
+    showConfirm(Object.assign({}, DEMO_INTEL));
+    return;
+  }
+
+  const endpoint = (window.location.origin || "http://127.0.0.1:3000") + "/api/ocr";
+  try {
+    const resp = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await resp.json();
+    if(!json.ok || !json.text){
+      alert("识别没成功：" + (json.message || "请重试") + "\n\n你也可以返回用「文字」方式手动描述，或直接把内容截图再传一次。");
+      showPage("pageInput");
+      return;
+    }
+    // 识别到文字 → 复用现有的 AI 抽取链路（进度页已在展示，直接 doExtract），并进入确认页核对
+    await doExtract(null, json.text, true);
+  } catch(err){
+    console.error("ocrAndExtract error:", err);
+    alert("识别请求失败：" + (err && err.message ? err.message : "网络错误") + "\n\n请稍后重试，或用「文字」方式手动填写。");
+    showPage("pageInput");
+  }
 }
 
 /* ===== 直接输入比赛名字：搜索匹配 ===== */
@@ -1030,7 +1313,7 @@ const DEMO = {
       boss:"🛡️ 守门 Boss",
       real:"真实环节：校级初赛（5—8月）",
       steps:[
-        { title:"打磨项目材料", hint:"点开看怎么做", how:"校赛主要是看材料+答辩。把你的项目讲清楚：背景、痛点、你的方案、创新点、可行性。用大白话写，评委不是你这个专业的。", need:"项目计划书/PPT 初稿。", note:"材料不完整是校赛被刷的最常见原因，宁可少写也别写虚的。" },
+        { title:"打磨项目材料", hint:"点开看怎么做", how:"校赛主要是看材料+答辩。把你的项目讲清楚：背景、痛点、你的方案、创新点、可行性。尽量用通俗的话写，让不同背景的评委也能一听就懂。", need:"项目计划书/PPT 初稿。", note:"材料不完整是校赛被刷的最常见原因，宁可少写也别写虚的。" },
         { title:"准备答辩", hint:"点开看怎么做", how:"准备一段 3~5 分钟能把项目讲清楚的话，再预想几个评委可能问的问题（为什么是你、怎么做、钱从哪来）。对着镜子或找同学练几遍。", need:"PPT、讲稿、可能被问到的问题清单。", note:"表达清楚比华丽更重要，别背稿子背成念经。" },
         { title:"参加校赛评审", hint:"点开看怎么做", how:"按学校安排提交材料、参加现场答辩。校赛通过后，学校会推荐优秀项目进省赛。", need:"按时到场、材料、答辩状态。", note:"校赛名额有限，进了校赛就认真对待，别浪费机会。" }
       ],
@@ -1089,7 +1372,46 @@ const COMP_LIBRARY = [
       ["赛道","高教主赛道 / 青年红色筑梦之旅 / 职教赛道 / 产业赛道 / 萌芽赛道"],
       ["时间","报名4—7月 → 初赛复赛5—8月 → 总决赛9月（以当年通知为准）"]
     ],
-    stages:["报名","校级初赛","省级复赛","总决赛"]
+    stages:["报名","校级初赛","省级复赛","总决赛"],
+    tags:{ star:5, diff:"高", edu:["专科","本科","研究生"], cycle:"长", timeReq:"多", type:"创业类" },
+    stagesDetail:[
+      // 报名关（国创赛：报名门槛高，要组队+项目书雏形）
+      {
+        steps:[
+          { title:"在官网注册账号并组队", hint:"点开看怎么做", how:"去全国大学生创业服务网（cy.ncss.cn）用学籍信息实名注册，项目负责人发起报名后，把队友、指导老师一起拉进来。团队通常 3~15 人，负责人必须是高校在校生。", need:"学信网学籍信息、队友和指导老师的基本信息、一个项目名称。", note:"这个比赛报名必须先组队、有项目雏形才能报，一个人报不了；负责人中途不能随便换，先想好谁来当负责人。" },
+          { title:"写一份能过初筛的项目申报书", hint:"点开看怎么做", how:"报名阶段就要交项目申报书/商业计划书雏形，重点写清「解决什么问题、怎么解决、凭什么你能做」。别等到校赛才写，报名时就有一版完整文字稿。", need:"项目申报书模板（官网下载）、项目核心信息。", note:"报名系统里填的赛道要选对——高教主赛道、职教赛道、红旅赛道侧重点完全不同，选错赛道后面会吃亏。" },
+          { title:"确认报名时间窗口并留凭证", hint:"点开看怎么做", how:"报名一般 4—7 月开放，注意看学校发的具体截止时间（校方会提前收）。提交后截图保存报名编号和回执。", need:"报名成功回执、学校通知里的截止日期。", note:"学校内部截止时间往往比官网早，别只看官网日期，先问辅导员或学院。" }
+        ],
+        plan:["在 cy.ncss.cn 完成实名注册","确定项目和负责人，拉齐队友","填赛道、写申报书初稿","提交报名并截图留编号"]
+      },
+      // 校级初赛关
+      {
+        steps:[
+          { title:"把商业计划书写到能路演的程度", hint:"点开看怎么做", how:"校赛主要看商业计划书 + 现场路演。计划书要讲清：市场痛点、解决方案、商业模式、财务预测、团队分工。一页一个核心，别堆字。", need:"完整商业计划书、路演 PPT（一般 5~8 分钟）。", note:"校赛评委是本校本专业老师，最看重「项目真实感」——有没有真数据、真调研、真用户，比宏大的市场规模更重要。" },
+          { title:"打磨一分钟讲清楚项目", hint:"点开看怎么做", how:"练出一句能一句话讲清项目的「电梯演讲」：你做什么、给谁用、解决什么痛点。校赛路演时间短，开场 30 秒决定印象分。", need:"项目一句话介绍、路演讲稿。", note:"别用太多行业黑话，校赛评委未必懂你的细分领域，用大白话讲清楚反而更讨喜。" },
+          { title:"反复模拟答辩", hint:"点开看怎么做", how:"找同学或学长当评委，走完整路演+提问流程，掐时间练。预判「你的创新点在哪、市场怎么验证、钱从哪来」这几个必问问题。", need:"一个愿意当听众的人、计时器、往届优秀路演视频。", note:"校赛晋级名额有限，路演超时会被打断扣分，提前练到比规定时长短 30 秒。" }
+        ],
+        plan:["写完整商业计划书","做路演 PPT 并写讲稿","模拟答辩至少一遍","按校方要求提交晋级材料"]
+      },
+      // 省级复赛关
+      {
+        steps:[
+          { title:"按省赛要求升级材料和作品", hint:"点开看怎么做", how:"省赛评委更专业、竞争更激烈，要把校赛版计划书全面升级：补充真实市场验证（用户访谈、试点数据、合作意向）、财务测算做细、团队背书写足。", need:"升级版计划书、真实数据佐证、可能的 Demo/原型或视频。", note:"省赛会筛掉一大半「纸上谈兵」的项目，没有真实落地证据的项目很难走远，重点补「真」的部分。" },
+          { title:"准备更硬核的路演和答辩", hint:"点开看怎么做", how:"省赛路演要求更高，PPT 要更精致、逻辑更清晰，答辩问题更尖锐（商业模式、盈利、可复制性）。把每个数据、每个结论的依据都备好。", need:"精修路演 PPT、答辩问题清单及应答稿、1 分钟宣传视频（若有要求）。", note:"省赛评委常从投资人视角追问「怎么赚钱、怎么规模化」，提前把盈利闭环想清楚。" },
+          { title:"注意省赛的赛制和材料截止", hint:"点开看怎么做", how:"省赛往往有网评初筛 + 现场复赛两轮，材料格式、命名、提交平台都要按省通知执行，别用校赛的习惯。", need:"省赛通知原文、符合格式的材料包。", note:"省赛材料一次提交定生死，网评看的是电子材料，排版、命名、完整性这些细节别出岔子。" }
+        ],
+        plan:["升级商业计划书（补真实数据）","精修路演 PPT 和答辩稿","准备 Demo/视频等佐证材料","按省通知格式提交，卡准截止"]
+      },
+      // 总决赛关
+      {
+        steps:[
+          { title:"冲击国赛的项目要做到能落地的程度", hint:"点开看怎么做", how:"总决赛拼的是项目的深度和真实度：要有可演示的产品/原型、真实用户或合作数据、清晰的股权与商业模式。把项目往「真能做起来」的方向打磨。", need:"可演示原型、真实运营数据、合作/用户证明、完整商业计划书。", note:"国赛评委里有投资人，最反感「假数据」，一个编造的数字被抓到会一票否决，宁可数据小也要真实。" },
+          { title:"打磨现场路演和终极答辩", hint:"点开看怎么做", how:"总决赛路演通常 6~8 分钟 + 评委提问，把讲稿练到脱口而出，准备好应对最尖锐的追问（你的壁垒是什么、别人为什么抄不了你、钱从哪来）。", need:"决赛版 PPT、路演讲稿、答辩预案。", note:"国赛现场心态比内容更重要，紧张忘词是最大杀手，提前多次完整彩排。" },
+          { title:"准备现场物料和突发应对", hint:"点开看怎么做", how:"准备路演要用的所有文件（多份备份）、演示设备、产品 Demo，提前测试现场设备和网络。", need:"U 盘/云端备份、演示设备、备用方案。", note:"国赛现场设备可能出状况，提前把 PPT 导出 PDF 备份、Demo 准备离线版本。" }
+        ],
+        plan:["把项目打磨到可落地（原型/数据）","练熟决赛路演和答辩","准备现场物料和备份","赛前完整彩排至少两遍"]
+      }
+    ]
   },
   {
     keywords:["挑战杯","大挑","课外学术科技作品竞赛"],
@@ -1102,7 +1424,42 @@ const COMP_LIBRARY = [
       ["赛道","自然科学类学术论文 / 哲学社科类调查报告 / 科技发明制作（另有揭榜挂帅、人工智能+专项赛）"],
       ["时间","校赛3—4月 → 省赛5—6月 → 全国决赛10—11月（每两年一届，奇数年举办）"]
     ],
-    stages:["校赛报名","校级初赛","省级复赛","全国决赛"]
+    stages:["校赛报名","校级初赛","省级复赛","全国决赛"],
+    tags:{ star:5, diff:"高", edu:["本科","研究生"], cycle:"长", timeReq:"多", type:"学术科技类" },
+    stagesDetail:[
+      {
+        steps:[
+          { title:"选定参赛类别和作品方向", hint:"点开看怎么做", how:"大挑分三类：自然科学类论文、哲学社科类调查报告、科技发明制作。先想清楚你要走哪类，再确定具体选题——社科类看社会热点，科技类看实验室成果或专利。", need:"一个明确的作品方向、指导老师。", note:"大挑作品是「研究成果」，不是「创业计划」，别把它当创业赛来写，重点在学术价值和创新性。" },
+          { title:"找指导老师并确认校方时间", hint:"点开看怎么做", how:"大挑必须有指导老师，提前联系专业对口的老师（尤其有课题/实验室的）。同时问清本校校赛的报名时间，学校会统一组织。", need:"指导老师、校方报名通知。", note:"大挑两年一届（奇数年办），错过一届要等两年，报名时间一定要早确认。" },
+          { title:"完成报名登记", hint:"点开看怎么做", how:"按学校通知在指定渠道报名登记，提交作品类型、选题方向、团队成员等信息，保留报名凭证。", need:"报名表、团队信息。", note:"校方会先做一轮校内筛选，报名材料要如实写清作品进展，别虚报。" }
+        ],
+        plan:["确定参赛类别和选题","联系指导老师","按学校通知报名登记"]
+      },
+      {
+        steps:[
+          { title:"把作品做扎实——论文/报告/实物", hint:"点开看怎么做", how:"校赛比的是作品的完整度和学术性：社科类要有扎实的调研数据（问卷、访谈），科技类要有能演示的实物或详实的实验数据，论文要有规范格式。", need:"作品正文、数据/实验记录、参考文献。", note:"校赛评委看重「原创性」，抄袭或数据造假是一票否决，引用必须规范标注。" },
+          { title:"写规范的学术作品文档", hint:"点开看怎么做", how:"按学术规范写：摘要、研究背景、方法、结果、结论、参考文献齐全。格式参照往届获奖作品或校方模板。", need:"往届获奖作品参考、校方格式模板。", note:"格式不规范会被直接降档，尤其参考文献和图表编号这些细节。" },
+          { title:"校赛答辩展示", hint:"点开看怎么做", how:"校赛通常要现场答辩，讲清「你研究的问题、方法、创新点、结论」。准备 PPT 和答辩稿，突出学术贡献。", need:"答辩 PPT、讲稿。", note:"校赛答辩要突出「学术性」而非「商业性」，评委是老师，讲清研究价值比讲市场前景更重要。" }
+        ],
+        plan:["完成作品正文和数据","按规范格式排版","准备校赛答辩"]
+      },
+      {
+        steps:[
+          { title:"按省赛标准深化作品", hint:"点开看怎么做", how:"省赛竞争升级，要把作品往「有分量」的方向深化：社科类扩大样本、加强分析深度，科技类补实验、补测试、补专利。", need:"深化后的作品、更扎实的数据。", note:"省赛会看作品的「社会价值/应用前景」，社科类要有政策建议，科技类要有应用场景。" },
+          { title:"打磨省赛申报材料", hint:"点开看怎么做", how:"省赛要交正式的申报书 + 作品全文，按省通知的要求准备，突出创新点和研究成果，材料要经得起查重。", need:"申报书、作品全文、查重报告（若要求）。", note:"省赛材料一次定稿，查重率是硬指标，提前自查重复率。" },
+          { title:"省赛答辩", hint:"点开看怎么做", how:"省赛答辩更专业，评委会深挖你的研究方法是否科学、数据是否可信、结论是否站得住。把研究细节吃透。", need:"答辩 PPT、研究细节问答准备。", note:"省赛评委可能不是你专业的，把专业术语讲通俗，让外行也能听懂你的贡献。" }
+        ],
+        plan:["深化作品和数据分析","准备申报书和查重","备战省赛答辩"]
+      },
+      {
+        steps:[
+          { title:"冲击国赛的作品要成为「标杆」", hint:"点开看怎么做", how:"全国决赛的作品要有真正的学术创新或社会价值：社科类要有原创性发现或政策影响力，科技类要有硬核技术突破或专利。把作品的「不可替代性」讲透。", need:"高水准作品、论文/专利/获奖证明。", note:"国赛拼的是「学术高度」，评委是顶尖专家，任何不严谨的表述都会被抓住。" },
+          { title:"准备国赛展示和答辩", hint:"点开看怎么做", how:"国赛常设作品展位 + 现场答辩，准备好展板、作品实物、答辩讲稿，把研究的完整故事讲清楚。", need:"展板、作品实物/海报、答辩稿。", note:"国赛现场要会「讲故事」，从问题出发讲你的探索过程，比干巴巴罗列成果更打动人。" },
+          { title:"现场展示和临场应对", hint:"点开看怎么做", how:"准备多份材料备份、演示设备，提前到现场布置展位、调试。面对评委连续追问保持冷静，诚实承认不足比硬撑更加分。", need:"材料备份、演示设备、备用方案。", note:"国赛答辩时间紧、问题密，提前模拟最尖锐的提问，练出从容。" }
+        ],
+        plan:["打磨作品到标杆水准","准备展板和答辩材料","现场彩排和材料备份"]
+      }
+    ]
   },
   {
     keywords:["小挑","创业计划竞赛","挑战杯创业"],
@@ -1115,7 +1472,42 @@ const COMP_LIBRARY = [
       ["赛道","科技创新和未来产业 / 乡村振兴 / 社会治理 / 生态环保 / 文化创意等"],
       ["时间","偶数年举办（与大挑交替），具体以当年通知为准"]
     ],
-    stages:["报名组队","校级初赛","省级复赛","全国决赛"]
+    stages:["报名组队","校级初赛","省级复赛","全国决赛"],
+    tags:{ star:5, diff:"高", edu:["本科","研究生","专科"], cycle:"长", timeReq:"多", type:"创业类" },
+    stagesDetail:[
+      {
+        steps:[
+          { title:"组队并确定创业项目方向", hint:"点开看怎么做", how:"小挑是「创业计划」竞赛，先组一个互补团队（技术+商业+文案+设计+答辩），再确定项目方向——从身边真实需求或国家战略方向切入，避开校园二手、跑腿这类同质化选题。", need:"互补团队、一个明确项目方向。", note:"小挑偶数年办（与大挑交替），报名前先确认今年是否举办，别白忙。" },
+          { title:"写创业计划书初稿", hint:"点开看怎么做", how:"报名阶段就要有创业计划书雏形，核心写清「痛点、产品/服务、商业模式、市场、财务、团队」。", need:"创业计划书模板、项目核心信息。", note:"小挑分不同赛道（科技创新、乡村振兴、社会治理等），选对赛道事半功倍。" },
+          { title:"完成报名", hint:"点开看怎么做", how:"按学校通知报名，提交团队信息和项目简介，保留凭证。", need:"报名表、团队信息。", note:"学校内部截止时间早于官网，先问辅导员。" }
+        ],
+        plan:["组互补团队","确定项目方向","写计划书初稿并报名"]
+      },
+      {
+        steps:[
+          { title:"把创业计划书写完整", hint:"点开看怎么做", how:"校赛看计划书的完整度和可行性：市场分析、竞争分析、盈利模式、财务测算都要有。用真实调研数据支撑，别只写宏观概念。", need:"完整创业计划书、市场调研数据。", note:"校赛评委看重「可行性」，一个能说清怎么落地的小项目，胜过画大饼的大概念。" },
+          { title:"准备校赛路演", hint:"点开看怎么做", how:"校赛要路演，准备 5~8 分钟 PPT + 讲稿，突出项目的核心亮点和商业逻辑。", need:"路演 PPT、讲稿。", note:"校赛时间短，开场 30 秒就要让人听懂你在做什么、给谁用。" },
+          { title:"模拟答辩", hint:"点开看怎么做", how:"找同学模拟评委提问，预判「你的竞争优势、怎么盈利、凭什么你能做」这些必问问题。", need:"听众、计时器。", note:"创业赛评委常从商业角度追问，把盈利模式想清楚。" }
+        ],
+        plan:["写完整创业计划书","做路演 PPT","模拟答辩"]
+      },
+      {
+        steps:[
+          { title:"升级计划书，补真实数据", hint:"点开看怎么做", how:"省赛要淘汰一大批「纸上项目」，重点补真实验证：用户访谈、试点数据、合作意向、真实订单。", need:"升级计划书、真实验证数据。", note:"省赛评委看「落地可能性」，没有真实数据支撑的项目很难晋级。" },
+          { title:"精修路演和答辩", hint:"点开看怎么做", how:"省赛路演要求更高，PPT 更精致、逻辑更清晰，答辩更尖锐（商业模式、可复制性、壁垒）。", need:"精修 PPT、答辩预案。", note:"省赛评委可能从投资人视角追问「怎么规模化、壁垒是什么」，提前想透。" },
+          { title:"按省赛要求提交材料", hint:"点开看怎么做", how:"按省通知格式提交材料包，注意命名、格式、截止时间，别用校赛习惯。", need:"符合格式的材料包。", note:"省赛材料一次定生死，细节别出错。" }
+        ],
+        plan:["补真实验证数据","精修路演和答辩","按省通知提交材料"]
+      },
+      {
+        steps:[
+          { title:"把项目打磨到能落地的程度", hint:"点开看怎么做", how:"国赛项目要有可演示的产品/原型、真实运营数据、清晰的商业模式，往「真能做起来」的方向打磨。", need:"可演示原型、真实数据。", note:"国赛评委反感假数据，宁可数据小也要真实。" },
+          { title:"准备国赛路演和终极答辩", hint:"点开看怎么做", how:"国赛路演 6~8 分钟 + 评委提问，讲稿练到脱口而出，准备好应对最尖锐追问。", need:"决赛 PPT、讲稿、答辩预案。", note:"国赛现场心态重要，紧张忘词是大敌，提前多次彩排。" },
+          { title:"准备现场物料和突发应对", hint:"点开看怎么做", how:"准备材料备份、演示设备、Demo，提前测试现场设备网络。", need:"备份文件、演示设备。", note:"国赛现场设备可能出状况，提前准备 PDF 备份和离线 Demo。" }
+        ],
+        plan:["打磨项目到可落地","练熟国赛路演","准备现场物料"]
+      }
+    ]
   },
   {
     keywords:["数学建模","数模","高教社杯","国赛数模"],
@@ -1128,7 +1520,40 @@ const COMP_LIBRARY = [
       ["赛道","本科组 / 高职高专组（A/B/C 题选做）"],
       ["时间","报名6—8月，9月赛题发布，赛程约74小时（每年一届）"]
     ],
-    stages:["报名组队","竞赛做题","赛区评阅","全国复评"]
+    stages:["报名组队","竞赛做题","赛区评阅","全国复评"],
+    tags:{ star:4, diff:"中", edu:["本科","专科"], cycle:"短", timeReq:"中", type:"数模算法类" },
+    stagesDetail:[
+      {
+        steps:[
+          { title:"组一支 3 人的队，分工明确", hint:"点开看怎么做", how:"数模是 3 人组队参赛，典型分工：一个建模（数学好）、一个编程（会 MATLAB/Python）、一个写作（会写论文）。三人缺一不可。", need:"3 名队友、明确分工。", note:"数模队伍越互补越强，全是同一种特长容易在某一环卡住。" },
+          { title:"报名并选好参赛组别", hint:"点开看怎么做", how:"报名一般 6—8 月，在竞赛管理系统报名，本科选本科组、高职高专选高职高专组。研究生不能参赛。", need:"报名系统账号、组别确认。", note:"本科和高职高专分开评奖，报错组别影响成绩。" },
+          { title:"提前练手熟悉工具", hint:"点开看怎么做", how:"正式比赛前，先拿往届赛题完整练一遍，熟悉建模流程和工具（MATLAB/Python、Lingo、论文排版）。", need:"往届赛题、建模/编程/排版工具。", note:"数模是 74 小时连续作战，提前练熟工具能省下大量时间。" }
+        ],
+        plan:["组 3 人互补队伍","完成报名选组别","拿往届题练一遍手"]
+      },
+      {
+        steps:[
+          { title:"赛题发布后快速选题", hint:"点开看怎么做", how:"9 月赛题发布（A/B/C 三题选一），团队要快速讨论，选最擅长的题。别纠结太久，选定了就别换。", need:"赛题、团队快速决策。", note:"选题用掉太多时间是大忌，建议先各自读题、再集中讨论，1 小时内定下来。" },
+          { title:"建模 + 编程 + 写作三线并进", hint:"点开看怎么做", how:"74 小时里，建模定方案、编程出结果、写作同步写论文，三条线并行。别等建模完全定稿才让写作开始。", need:"明确分工、实时沟通。", note:"论文是最终交付物，很多队死在「建模很厉害但论文没写完」，写作要全程同步推进。" },
+          { title:"留足时间排版和查漏", hint:"点开看怎么做", how:"最后几小时专门留给论文排版、摘要打磨、结果复核。摘要写得好坏直接影响评委第一印象。", need:"论文模板、摘要打磨。", note:"数模评委先看摘要，摘要写得含糊的论文分数低，务必花时间精写摘要。" }
+        ],
+        plan:["快速定题","建模编程写作并行","留时间排版和写摘要"]
+      },
+      {
+        steps:[
+          { title:"了解赛区评阅规则", hint:"点开看怎么做", how:"赛区初评按论文质量打分，评阅标准看「模型合理性、结果正确性、论文规范性」。交完卷后等待赛区结果即可。", need:"了解评阅标准、等待结果。", note:"这个阶段不用做什么，重点是交卷前确保论文完整、格式规范。" },
+          { title:"关注赛区获奖公示", hint:"点开看怎么做", how:"赛区评阅后会公示赛区奖项，留意自己是否晋级全国复评，及时关注通知。", need:"关注获奖公示。", note:"晋级全国复评的名额有限，赛区一等才有机会。" }
+        ],
+        plan:["确认论文已规范提交","关注赛区获奖公示"]
+      },
+      {
+        steps:[
+          { title:"了解全国复评流程", hint:"点开看怎么做", how:"全国复评由专家组对赛区推荐作品复核，评出全国一、二等奖。这个阶段通常不需要额外提交，等待终审结果。", need:"了解复评规则、等待结果。", note:"全国复评看的是最终论文质量，交卷前把论文打磨到位是唯一能做的。" },
+          { title:"查收最终获奖结果", hint:"点开看怎么做", how:"关注全国获奖名单公示，查收自己的最终奖项和证书。", need:"关注获奖公示。", note:"获奖证书和名单以官方公示为准，别信非官方渠道的「内部消息」。" }
+        ],
+        plan:["了解全国复评规则","查收最终获奖结果"]
+      }
+    ]
   },
   {
     keywords:["蓝桥杯","软件和信息技术","蓝桥"],
@@ -1141,7 +1566,39 @@ const COMP_LIBRARY = [
       ["赛道","软件赛（C/C++、Java、Python等）/ 电子赛 / 人工智能赛 / 视觉艺术设计赛 / 数字科技创新赛"],
       ["时间","省赛报名10—12月，省赛次年4月，总决赛次年6月（以当年通知为准）"]
     ],
-    stages:["报名","省赛","全国总决赛","颁奖"]
+    stages:["报名","省赛","全国总决赛","颁奖"],
+    tags:{ star:4, diff:"中", edu:["专科","本科","研究生"], cycle:"中", timeReq:"中", type:"职业技能类" },
+    stagesDetail:[
+      {
+        steps:[
+          { title:"报名并选好赛道和语言", hint:"点开看怎么做", how:"蓝桥杯分软件赛（C/C++、Java、Python 等）、电子赛、视觉设计赛等多个赛道。报名一般 10—12 月，去官网选赛道、选组别（研究生/本科/高职高专分组）。", need:"官网账号、选定的赛道和语言。", note:"赛道和组别选错没法改，报前看清自己属于哪个组、想考哪门语言。" },
+          { title:"准备赛前训练", hint:"点开看怎么做", how:"蓝桥杯是算法题为主，报名后到省赛（次年 4 月）有几个月训练期，刷往届真题、练常见算法（搜索、动态规划、贪心等）。", need:"往届真题、在线判题平台账号。", note:"蓝桥杯省赛题量不小、时间紧，练「速度和准确率」比「会做难题」更实际。" },
+          { title:"确认省赛时间地点", hint:"点开看怎么做", how:"省赛次年 4 月举行，注意官方通知的考试时间、地点或线上考试安排。", need:"省赛通知、考试信息。", note:"省赛有线下和线上两种形式，提前确认形式并测试好设备环境。" }
+        ],
+        plan:["报名选赛道组别","刷往年真题练算法","确认省赛时间和形式"]
+      },
+      {
+        steps:[
+          { title:"省赛上机考试，稳住节奏", hint:"点开看怎么做", how:"省赛是上机考试（通常 4 小时），按难度梯度做题：先拿稳简单题的分，再攻中难题。别在一道题上死磕。", need:"熟悉考试环境、清醒的做题节奏。", note:"蓝桥杯是「部分分」评分制，不会做的题也要写思路骗分，别空着。" },
+          { title:"考前熟悉考试系统", hint:"点开看怎么做", how:"提前登录官方考试系统熟悉提交方式、编译环境，避免考试当天手忙脚乱。", need:"考试系统账号、环境熟悉。", note:"考试系统的输入输出格式容易出错，提前做几道模拟题熟悉。" }
+        ],
+        plan:["考前熟悉考试系统","省赛按节奏拿分"]
+      },
+      {
+        steps:[
+          { title:"冲刺全国总决赛", hint:"点开看怎么做", how:"省赛获奖（一般省一等奖或高排名）晋级全国总决赛（次年 6 月），题目更难、要求更高，针对总决赛题型做强化训练。", need:"总决赛真题、强化训练。", note:"总决赛难度明显高于省赛，重点补自己省赛暴露的薄弱题型。" },
+          { title:"确认总决赛安排", hint:"点开看怎么做", how:"确认总决赛的时间、地点（通常集中线下举行）、考试形式。", need:"总决赛通知。", note:"总决赛常集中在一个城市线下举行，提前安排交通住宿。" }
+        ],
+        plan:["针对总决赛强化训练","确认总决赛安排"]
+      },
+      {
+        steps:[
+          { title:"领取获奖证书和成绩", hint:"点开看怎么做", how:"总决赛后官方会公示获奖名单、颁发证书，注意查收和下载电子证书。", need:"关注获奖公示。", note:"获奖证书以官方公示为准，电子证书一般在官网下载。" },
+          { title:"沉淀参赛收获", hint:"点开看怎么做", how:"无论结果如何，把参赛经历、获奖情况整理进简历和作品集，这是求职时的加分项。", need:"证书、成绩单。", note:"蓝桥杯在求职（尤其软件岗）认可度不错，记得把成绩和证书放进简历。" }
+        ],
+        plan:["查收获奖证书","整理进简历作品集"]
+      }
+    ]
   },
   {
     keywords:["大创","创新创业训练计划","大创项目"],
@@ -1154,7 +1611,40 @@ const COMP_LIBRARY = [
       ["赛道","创新训练项目 / 创业训练项目 / 创业实践项目"],
       ["时间","各校申报时间不一，一般每年3—5月申报、次年结题（周期1—2年）"]
     ],
-    stages:["选题组队","项目申报","立项实施","结题验收"]
+    stages:["选题组队","项目申报","立项实施","结题验收"],
+    tags:{ star:4, diff:"低", edu:["本科","专科"], cycle:"长", timeReq:"中", type:"创业类" },
+    stagesDetail:[
+      {
+        steps:[
+          { title:"选题并组队", hint:"点开看怎么做", how:"大创是「立项制」不是「比赛」——先选题（创新训练/创业训练/创业实践三类选一）、组队（负责人+成员+指导老师），选题从专业方向或真实需求出发。", need:"选题方向、团队、指导老师。", note:"大创负责人要毕业前结题，一般一二三年级优先，快毕业的别当负责人。" },
+          { title:"了解学校申报时间和要求", hint:"点开看怎么做", how:"大创由学校统一申报，各校时间不一（一般 3—5 月），先问清本校教务/创新创业部门的申报时间、名额、模板。", need:"学校申报通知、模板。", note:"大创名额有限，学校会先校内评审，选题新颖、可行性强更容易立项。" },
+          { title:"准备申报材料", hint:"点开看怎么做", how:"准备项目申报书：项目背景、研究内容、创新点、实施方案、预期成果、经费预算。写清「要做什么、怎么做、能做出什么」。", need:"申报书、经费预算表。", note:"申报书是立项评审的唯一依据，创新点和可行性要重点写透。" }
+        ],
+        plan:["选题组队找指导老师","问清学校申报时间","写项目申报书"]
+      },
+      {
+        steps:[
+          { title:"提交申报并参加校内评审", hint:"点开看怎么做", how:"按学校要求提交申报书，参加校内评审答辩（如有）。评审看项目的创新性、可行性、团队能力。", need:"申报书终稿、答辩准备。", note:"立项分国家级、省级、校级三个层次，层级越高要求越高、经费越多。" },
+          { title:"了解立项结果和经费", hint:"点开看怎么做", how:"立项结果公示后，了解你的项目是什么级别、经费多少、如何报销，以及后续的结题要求。", need:"立项通知、经费使用规定。", note:"立项只是开始，真正要做的是把项目做出来并结题，别立项后就松懈。" }
+        ],
+        plan:["提交申报答辩","确认立项级别和经费"]
+      },
+      {
+        steps:[
+          { title:"按计划推进项目实施", hint:"点开看怎么做", how:"按申报书的计划推进：做实验/调研/开发，记录过程数据，保留成果证据（实验记录、数据、论文、专利、作品）。", need:"实验/调研记录、成果材料。", note:"大创周期 1~2 年，中间有中期检查，进展太慢会被警告甚至终止，别拖。" },
+          { title:"准备中期检查", hint:"点开看怎么做", how:"项目中期要提交进展报告、参加中期检查，汇报已完成的工作和下一步计划。", need:"进展报告、阶段性成果。", note:"中期检查看「是否按计划推进」，提前把阶段性成果整理好。" }
+        ],
+        plan:["按计划推进项目","记录过程数据","准备中期检查"]
+      },
+      {
+        steps:[
+          { title:"完成结题材料和成果", hint:"点开看怎么做", how:"结题要交结题报告 + 成果证明（论文、专利、软件著作权、实物、获奖等），把整个项目的过程和成果系统整理。", need:"结题报告、成果证明。", note:"结题验收看「有没有完成申报时承诺的目标」，成果要能对上申报书里的预期成果。" },
+          { title:"参加结题答辩/验收", hint:"点开看怎么做", how:"参加结题答辩，汇报项目完成情况、成果、收获。答辩要突出「做了什么、做出了什么、价值在哪」。", need:"结题答辩 PPT、成果展示。", note:"结题不过会影响学分和后续申报，务必认真对待，成果要真实。" },
+          { title:"沉淀成果用于后续竞赛", hint:"点开看怎么做", how:"大创项目成果（论文、专利、产品）可以作为挑战杯、互联网+等比赛的素材，把成果整理好，为后续竞赛铺路。", need:"成果清单、材料归档。", note:"大创是「攒成果」的好渠道，很多人拿大创成果去打高含金量竞赛。" }
+        ],
+        plan:["整理结题材料和成果","参加结题答辩","沉淀成果用于后续竞赛"]
+      }
+    ]
   }
 ];
 
@@ -1181,14 +1671,36 @@ function buildMatchFromComp(comp){
   const info = comp.info.map(([k,v])=>[k,v]);
   const stages = comp.stages && comp.stages.length ? comp.stages.slice(0,4) : ["报名","初赛","复赛","决赛"];
   const levels = stages.map(s=>({name:s, time:""}));
-  const levelsDetail = genericLevelsDetail(stages);
-  return { name:comp.name, info:info, levels:levels, levelsDetail:levelsDetail };
+  // 优先用比赛专属的赛段差异化内容（stagesDetail），没有则回退通用模板
+  let levelsDetail;
+  if(comp.stagesDetail && Array.isArray(comp.stagesDetail) && comp.stagesDetail.length){
+    levelsDetail = buildLevelsDetailFromCustom(stages, comp.stagesDetail);
+  } else {
+    levelsDetail = genericLevelsDetail(stages);
+  }
+  return { name:comp.name, info:info, levels:levels, levelsDetail:levelsDetail, _comp:comp };
+}
+
+/* 用比赛专属 stagesDetail 构建关卡详情（每段内容针对该比赛该赛段）*/
+function buildLevelsDetailFromCustom(stages, detail){
+  const icons = ["👑","🛡️","🐉","👹"];
+  const bossNames = ["守门 Boss","守门 Boss","评审 Boss","终极 Boss"];
+  return stages.map((nm, i)=>{
+    const d = detail[i] || detail[0] || {};
+    const steps = (d.steps && d.steps.length) ? d.steps : genericStepsForStage(nm, i, stages.length);
+    const plan = (d.plan && d.plan.length) ? d.plan : ["找到官方"+nm+"通知","确认我符合条件","准备好材料","完成"+nm];
+    return { gameName:nm+"之门", boss:icons[i]+" "+bossNames[i], real:"真实环节："+nm, steps:steps, plan:plan };
+  });
 }
 
 /* ===== 后端实时搜索：调 /api/search 搜全网 ===== */
 async function searchOnline(query){
   const q = (query||"").trim();
   if(!q) return null;
+  // 演示模式：返回预置假结果，不调后端、不烧额度
+  if(DEMO_MODE){
+    return { configured:true, results: DEMO_SEARCH_RESULTS.slice(), _demo:true };
+  }
   const endpoint = (window.location.origin || "http://127.0.0.1:3000") + "/api/search";
   try {
     const resp = await fetch(endpoint, {
@@ -1350,60 +1862,54 @@ function filterRelevantResults(name, results){
   return picked.length ? picked : results.slice(0, 6);
 }
 
-/* 把实时搜索结果 + 比赛名，交给 LLM 整理成 currentMatch */
+/* 把实时搜索结果 + 比赛名，交给后端 LLM 整理成 currentMatch */
 async function resultsToMatch(query, results){
-  if(!cloudReady || !cloud){
-    return null;
+  // 演示模式：直接返回预置情报，不调后端
+  if(DEMO_MODE){
+    return Object.assign({}, DEMO_INTEL);
   }
   const summary = results.map((r,i)=>{
     let s = "[" + (i+1) + "] " + (r.title || "");
     if(r.date) s += "（时间：" + r.date + "）";
     if(r.snippet) s += "\n摘要：" + r.snippet;
-    if(r.url) s += "\n来源：" + r.url;
+    if(r.url){
+      let domain = "";
+      try { domain = new URL(r.url).hostname; } catch(e){ domain = ""; }
+      s += "\n来源：" + r.url + (domain ? "（域名：" + domain + "，请据此判断是否官方/权威来源）" : "");
+    }
     return s;
   }).join("\n\n");
 
-  const systemPrompt = "你是比赛信息整理助手。下面给你某比赛的实时搜索结果（标题+摘要+时间+来源）。请提炼关键信息，并生成后续引导用户闯关所需的内容。直接输出一个合法 JSON（不要任何多余文字、不要解释）。\n\n规则：\n1. 只依据结果里明确写到的内容，没提到的字段填「未核实」，绝不编造。\n2. 每项尽量简短（一句话以内），不要长篇大论。\n3. 比赛名称取官方正式名。\n4. stages 按实际环节填（报名/初赛/复赛/决赛等），没有就 []。\n\nJSON 结构（字段名固定）：\n{\n  \"name\":\"比赛官方名\",\n  \"host\":\"主办方\",\n  \"system\":\"赛制流程\",\n  \"target\":\"参赛对象\",\n  \"url\":\"报名入口\",\n  \"track\":\"赛道组别\",\n  \"time\":\"时间安排\",\n  \"stages\":[\"环节1\",\"环节2\",\"环节3\",\"环节4\"],\n  \"steps\":[\n    {\"step\":\"这一环节具体要做什么（结合这个比赛的真实要求）\",\"need\":\"要准备的材料/文件\",\"note\":\"这一环节容易踩的坑/截止提醒\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"}\n  ],\n  \"plan\":[\n    [\"第1关待办1\",\"第1关待办2\",\"第1关待办3\",\"第1关待办4\"],\n    [\"第2关待办1\",\"...\"],\n    [\"第3关待办1\",\"...\"],\n    [\"第4关待办1\",\"...\"]\n  ],\n  \"eval\":\"一段针对这个比赛的适配建议（面向什么学历/专业/时间投入更合适，60字以内，依据真实信息，信息不足就说明'以官方为准'）\",\n  \"exp\":[\n    {\"title\":\"过来人经验1的标题\",\"text\":\"具体建议内容（50字以内）\"},\n    {\"title\":\"过来人经验2的标题\",\"text\":\"...\"},\n    {\"title\":\"过来人经验3的标题\",\"text\":\"...\"}\n  ]\n}\n\n说明：steps 的条数要和 stages 一致（最多4条）；plan 是二维数组，每个子数组对应该关的待办清单（3~4条）；exp 给 2~3 条针对这类比赛的实用经验。所有内容只依据搜索结果真实信息，信息不足就结合比赛类型给「通用但实在」的建议，并如实标注待核实，绝不胡编具体数据。";
-
-  const userPrompt = "比赛：「" + query + "」。实时搜索结果：\n\n" + summary;
-
-  // 用 AbortController 做超时保护（后台生成，用户已先看到原文，可放宽到 30 秒）
+  const endpoint = (window.location.origin || "http://127.0.0.1:3000") + "/api/summarize";
   const controller = new AbortController();
-  const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 30000);
+  const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 40000);
 
   try {
-    const modelId = await pickChatModel();
-
-    let answer = "";
-    const stream = cloud.llm.chat.completions.create({
-      model: modelId,
-      messages: [
-        { role:"system", content: systemPrompt },
-        { role:"user", content: userPrompt }
-      ],
-      stream: true,
-      signal: controller.signal
+    const resp = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task: "intel", name: query, context: summary }),
+      signal: controller.signal,
     });
-    for await (const chunk of stream){
-      const delta = chunk.choices && chunk.choices[0] ? chunk.choices[0].delta : null;
-      if(delta && delta.content) answer += delta.content;
-    }
-
+    const json = await resp.json();
     clearTimeout(timeout);
-
+    if(!json.ok || !json.result){
+      window.__diag = { step:"resultsToMatch", error: json.error || "no_result", message: json.message || "" };
+      return null;
+    }
     let parsed = null;
-    try { parsed = JSON.parse(answer); }
+    try { parsed = JSON.parse(json.result); }
     catch(e){
-      const m = answer.match(/\{[\s\S]*\}/);
+      const m = json.result.match(/\{[\s\S]*\}/);
       if(m){ try { parsed = JSON.parse(m[0]); } catch(e2){ parsed = null; } }
     }
     if(!parsed){
-      window.__diag = { step:"resultsToMatch", modelId, answer: answer.slice(0,200) };
+      window.__diag = { step:"resultsToMatch", answer: json.result.slice(0,200) };
     }
     return parsed;
   } catch(err){
     clearTimeout(timeout);
-    window.__diag = { step:"resultsToMatch", modelId, error: String(err && err.message || err) };
+    window.__diag = { step:"resultsToMatch", error: String(err && err.message || err) };
     console.error("resultsToMatch error:", err);
     return null;
   }
@@ -1575,11 +2081,8 @@ function buildLevelsDetail(stages, p){
         note: s.note || "以官方通知为准。"
       }];
     } else {
-      steps = [
-        { title:"了解这关要求", hint:"点开看怎么做", how:"先搞清楚这一环节具体要你做什么、交什么、什么时候截止。把通知原文找出来，别只看二手转述。", need:"比赛通知原文、这关的提交材料清单。", note:"信息要以官方通知为准。" },
-        { title:"准备材料", hint:"点开看怎么做", how:"把这关要交的东西整理好：材料、作品、演示或答辩稿。先有初稿，再打磨。", need:"这一环节要求的材料文件。", note:"材料要真实、完整，缺一样都可能被退回。" },
-        { title:"按时提交 / 参加", hint:"点开看怎么做", how:"按官方通知的时间、渠道提交材料或到场参加。提前一天准备好，别卡在最后一刻。", need:"能上网的设备、准备好的材料、提醒自己别忘时间。", note:"截止时间错过就没了，务必提前设提醒。" }
-      ];
+      // 兜底：按环节位置给「不一样」的通用步骤，而不是四关套同一句话
+      steps = genericStepsForStage(nm, i, names.length);
     }
 
     // 优先用 AI 针对这一关生成的真实计划表
@@ -1598,55 +2101,85 @@ function genericLevelsDetail(stageNames){
   const bossNames = ["守门 Boss","守门 Boss","评审 Boss","终极 Boss"];
   const names = stageNames && stageNames.length === 4 ? stageNames : ["报名","初赛","复赛","决赛"];
   return names.map((nm,i)=>{
-    const steps = [
-      { title:"了解这关要求", hint:"点开看怎么做", how:"先搞清楚这一环节具体要你做什么、交什么、什么时候截止。把通知原文找出来，别只看二手转述。", need:"比赛通知原文、这关的提交材料清单。", note:"信息要以官方通知为准，别信道听途说的时间。" },
-      { title:"准备材料", hint:"点开看怎么做", how:"把这关要交的东西整理好：材料、作品、演示或答辩稿。先有初稿，再打磨。", need:"这一环节要求的材料文件。", note:"材料要真实、完整，缺一样都可能被退回。" },
-      { title:"按时提交 / 参加", hint:"点开看怎么做", how:"按官方通知的时间、渠道提交材料或到场参加。提前一天准备好，别卡在最后一刻。", need:"能上网的设备、准备好的材料、提醒自己别忘时间。", note:"截止时间错过就没了，务必提前设提醒。" }
-    ];
+    const steps = genericStepsForStage(nm, i, names.length);
     const plan = ["找到官方"+nm+"通知","确认我符合条件","准备好材料","完成"+nm];
     return { gameName:nm+"之门", boss:icons[i]+" "+bossNames[i], real:"真实环节："+nm, steps:steps, plan:plan };
   });
 }
 
-async function doExtract(url, text){
-  if(!cloudReady || !cloud){
-    // 云服务没加载成功 → 明确告知，回退到让用户手动填文字表单
-    alert("AI 能力暂时没加载成功（可能是网络或云服务没就绪）。\n\n你可以先点「返回」，用「文字」方式手动填写比赛信息，流程照样能走通。");
-    showPage("pageLinkForm");
-    return;
-  }
+/* 按环节位置给「不一样、有信息量」的兜底步骤（避免四关一模一样） */
+function genericStepsForStage(nm, i, total){
+  const templates = [
+    // 第 1 关：报名/入口
+    [
+      { title:"找到官方报名入口", hint:"点开看怎么做", how:"别在二手文章里找链接，直接去比赛官网、或学校教务/学院发的正式通知里，找到官方报名入口和报名截止时间。", need:"官方报名链接、报名表、身份/学籍证明材料。", note:"报名入口和时间最容易看错版本，务必以官网或学校红头通知为准。" },
+      { title:"核对参赛条件", hint:"点开看怎么做", how:"逐条对一遍：学历、年级、专业、是否要组队、指导老师、是否要提交前期作品。不符合的赛道别硬报，浪费精力。", need:"通知里的「参赛对象/资格」条款。", note:"很多比赛专科、本科、研究生分不同组别，报错组可能直接没资格。" },
+      { title:"填表报名并留凭证", hint:"点开看怎么做", how:"按要求填报名表、传材料、提交，提交后截图/保存报名成功的回执或编号，留作以后核对。", need:"填好的报名信息、报名成功回执截图。", note:"报名成功后务必截图留证，后续查进度、申诉都用得上。" }
+    ],
+    // 第 2 关：初赛/作品
+    [
+      { title:"搞清初赛到底交什么", hint:"点开看怎么做", how:"初赛一般交作品、文档或方案。把「要交什么、格式是什么、字数/页数限制、提交渠道」这几样从通知里抠出来，别凭感觉。", need:"通知里的提交要求、作品模板、格式规范。", note:"初赛最常挂的是「格式不符」和「缺材料」，先把清单列全再动手。" },
+      { title:"先出完整初稿再打磨", hint:"点开看怎么做", how:"别一开始就抠细节。先把作品/方案从第一页到最后一页完整做出来（哪怕是粗糙版），再回头优化表达和逻辑。", need:"能用的工具、往届优秀作品作参考。", note:"初赛评委看的是「完整度 + 有没有亮点」，不是打磨得多精致，先保证做完。" },
+      { title:"按格式要求提交", hint:"点开看怎么做", how:"严格按通知里的文件命名、格式、页数、提交平台上传，提交后再次打开确认能正常打开、内容没乱。", need:"符合格式的成品文件、提交平台账号。", note:"文件打不开、格式错了会被直接判不合格，提交前务必自己下载检查一遍。" }
+    ],
+    // 第 3 关：复赛/答辩/路演
+    [
+      { title:"准备答辩或路演材料", hint:"点开看怎么做", how:"复赛常有答辩、路演或现场展示。把讲解稿、PPT/演示材料准备好，控制在规定时长内。", need:"答辩稿、PPT、演示材料、可能的话术。", note:"时长超了会被扣分，提前计时练几遍，卡在要求时长以内。" },
+      { title:"预判评委会问什么", hint:"点开看怎么做", how:"站在评委角度想：这个作品的创新点在哪？凭什么值这个奖？数据哪来的？提前想好回答，别现场卡壳。", need:"作品核心亮点清单、可能被质疑的点及应对。", note:"评委最爱问「你的创新点/价值在哪」，答不上来最减分，提前准备一句话讲清楚。" },
+      { title:"模拟演练一遍", hint:"点开看怎么做", how:"找人当观众完整走一遍答辩流程，掐时间、挑毛病。发现问题当场改，比正式现场翻车强。", need:"一个愿意当听众的人、计时器。", note:"临场紧张毁所有，提前演练至少一遍，熟悉流程和材料位置。" }
+    ],
+    // 第 4 关：决赛/终审
+    [
+      { title:"确认决赛的特别要求", hint:"点开看怎么做", how:"决赛往往有现场答辩、限时展示、或额外的材料提交。把决赛这关独有的要求单独拎出来，别用初赛的惯性去应付。", need:"决赛通知、决赛时间地点、额外要求。", note:"决赛规则常和初赛复赛不同，务必重新读一遍决赛通知，别想当然。" },
+      { title:"把作品打磨到能扛住追问", hint:"点开看怎么做", how:"决赛评审更严，会把你的逻辑、数据、结论往死里问。把每个环节的依据、每个数字的来源都补扎实，经得起推敲。", need:"完整的数据来源、推导过程、参考文献。", note:"决赛比的是「深度和严谨」，不是「看起来热闹」，把薄弱环节补牢。" },
+      { title:"全力准备现场", hint:"点开看怎么做", how:"准备决赛当天的展示、答辩和可能的突发（设备、时间、提问）。提前到现场或调试好设备，心态稳住。", need:"现场要用的所有材料、备用方案。", note:"决赛结果反而不是最该焦虑的，把过程走扎实，结果顺其自然。" }
+    ]
+  ];
+  // 超过 4 关的兜底，或索引越界时，返回第 2 关的通用话术
+  const t = templates[i] || templates[Math.min(i,1)];
+  return t;
+}
 
+async function doExtract(url, text, needConfirm){
   const btnHint = document.getElementById("pBored");
   btnHint.textContent = "🤖 AI 正在从正文里提取比赛信息…";
 
-  const systemPrompt = "你是一个严谨的比赛信息整理助手。你的任务是从用户提供的网页正文里，提取一个「项目答辩制竞赛」的关键信息，并生成引导用户闯关所需的内容。\n\n必须遵守：\n1. 只依据正文里明确写到的内容填写，正文没有提到的，一律填「未核实」，绝不编造、不推测。\n2. 如果正文整体不是一份比赛/竞赛通知，请在 name 字段里说明「这看起来不是一份比赛通知」。\n3. 输出必须是合法 JSON，不要输出任何 JSON 以外的文字。\n4. 比赛名称只取官方正式名称，不要自己起名。\n\n输出 JSON 结构（字段名固定）：\n{\n  \"name\": \"比赛官方名称\",\n  \"host\": \"主办方\",\n  \"system\": \"赛制/流程（如校赛→省赛→总决赛）\",\n  \"target\": \"参赛对象\",\n  \"url\": \"报名入口网址或渠道\",\n  \"track\": \"赛道/组别\",\n  \"time\": \"时间安排\",\n  \"stages\": [\"环节1\",\"环节2\",\"环节3\",\"环节4\"],\n  \"steps\": [\n    {\"step\":\"这一环节具体做什么（结合正文真实要求）\",\"need\":\"要准备的材料\",\"note\":\"容易踩的坑/截止提醒\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"},\n    {\"step\":\"...\",\"need\":\"...\",\"note\":\"...\"}\n  ],\n  \"plan\": [\n    [\"第1关待办1\",\"第1关待办2\",\"第1关待办3\",\"第1关待办4\"],\n    [\"第2关待办1\",\"...\"],\n    [\"第3关待办1\",\"...\"],\n    [\"第4关待办1\",\"...\"]\n  ],\n  \"eval\":\"针对这个比赛的适配建议（面向什么学历/专业/时间投入，60字以内，信息不足就写'以官方为准'）\",\n  \"exp\":[\n    {\"title\":\"经验标题1\",\"text\":\"具体建议（50字以内）\"},\n    {\"title\":\"经验标题2\",\"text\":\"...\"},\n    {\"title\":\"经验标题3\",\"text\":\"...\"}\n  ]\n}\n其中 stages 尽量整理出比赛的实际环节（报名、初赛、复赛、决赛等），凑不满 4 个就按实际数量填；steps 条数要和 stages 一致（最多4条）；plan 是二维数组，每个子数组对应该关待办（3~4条）；exp 给 2~3 条实用经验。所有内容只依据正文真实信息，信息不足就结合比赛类型给实在建议并标注待核实。";
+  // 演示模式：直接返回预置情报，不调后端、不识别图片
+  if(DEMO_MODE){
+    const parsed = Object.assign({}, DEMO_INTEL);
+    if(needConfirm){
+      showConfirm(parsed);
+    } else {
+      applyExtracted(parsed);
+    }
+    return;
+  }
 
-  const userPrompt = (url ? "比赛通知链接是：" + url + "\n\n" : "") + "以下是网页正文，请提取比赛信息：\n\n" + text;
+  const endpoint = (window.location.origin || "http://127.0.0.1:3000") + "/api/summarize";
+  const context = (url ? "比赛通知链接是：" + url + "\n\n" : "") + "网页正文：\n\n" + text;
 
   try {
-    const modelId = await pickChatModel();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 40000);
 
-    let answer = "";
-    const stream = cloud.llm.chat.completions.create({
-      model: modelId,
-      messages: [
-        { role:"system", content: systemPrompt },
-        { role:"user", content: userPrompt }
-      ],
-      stream: true
+    const resp = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task: "intel", name: "网页中的比赛", context: context }),
+      signal: controller.signal,
     });
-    for await (const chunk of stream){
-      const delta = chunk.choices && chunk.choices[0] ? chunk.choices[0].delta : null;
-      if(delta && delta.content) answer += delta.content;
+    const json = await resp.json();
+    clearTimeout(timeout);
+
+    if(!json.ok || !json.result){
+      throw new Error(json.message || "AI 整理失败");
     }
 
-    // 解析 JSON
     let parsed = null;
     try {
-      parsed = JSON.parse(answer);
+      parsed = JSON.parse(json.result);
     } catch(e){
-      // 可能模型在 JSON 外还带了文字，尝试提取第一个 { 到最后一个 }
-      const m = answer.match(/\{[\s\S]*\}/);
+      const m = json.result.match(/\{[\s\S]*\}/);
       if(m){ try { parsed = JSON.parse(m[0]); } catch(e2){ parsed = null; } }
     }
 
@@ -1654,14 +2187,63 @@ async function doExtract(url, text){
       throw new Error("模型返回内容无法解析为结构化信息");
     }
 
+    // 图片/文件来源：先进「确认页」让用户核对修改，确认后再生成情报
+    if(needConfirm){
+      showConfirm(parsed);
+      return;
+    }
+
     applyExtracted(parsed);
 
   } catch(err){
     console.error("doExtract error:", err);
     alert("AI 抽取失败了：" + (err && err.message ? err.message : "未知错误") + "\n\n你可以点「返回」，用「文字」方式手动填写，或再试一次。");
-    showPage("pageLinkForm");
+    showPage(needConfirm ? "pageInput" : "pageLinkForm");
   }
 }
+
+/* ===== 确认页：图片/文件识别结果让用户核对修改 ===== */
+let pendingConfirm = null; // 暂存 AI 抽出的原始字段
+
+function showConfirm(p){
+  pendingConfirm = p;
+  document.getElementById("cfName").value = (p.name && p.name !== "未核实") ? p.name : "";
+  document.getElementById("cfHost").value = (p.host && p.host !== "未核实") ? p.host : "";
+  document.getElementById("cfSystem").value = (p.system && p.system !== "未核实") ? p.system : "";
+  document.getElementById("cfTarget").value = (p.target && p.target !== "未核实") ? p.target : "";
+  document.getElementById("cfUrl").value = (p.url && p.url !== "未核实") ? p.url : "";
+  document.getElementById("cfTrack").value = (p.track && p.track !== "未核实") ? p.track : "";
+  document.getElementById("cfTime").value = (p.time && p.time !== "未核实") ? p.time : "";
+  showPage("pageConfirm");
+}
+
+document.getElementById("cfOkBtn").addEventListener("click",()=>{
+  if(!pendingConfirm){
+    alert("没有待确认的信息，请返回重新识别。");
+    return;
+  }
+  const name = document.getElementById("cfName").value.trim();
+  if(!name){
+    alert("请至少填「比赛名称」，我才能帮你生成副本。");
+    return;
+  }
+  // 用用户核对/修改后的字段，覆盖 AI 抽出的原始值
+  const p = Object.assign({}, pendingConfirm);
+  p.name = name;
+  p.host = document.getElementById("cfHost").value.trim() || "未核实";
+  p.system = document.getElementById("cfSystem").value.trim() || "未核实";
+  p.target = document.getElementById("cfTarget").value.trim() || "未核实";
+  p.url = document.getElementById("cfUrl").value.trim() || "未核实";
+  p.track = document.getElementById("cfTrack").value.trim() || "未核实";
+  p.time = document.getElementById("cfTime").value.trim() || "未核实";
+  pendingConfirm = null;
+  applyExtracted(p);
+});
+
+document.getElementById("cfBackBtn").addEventListener("click",()=>{
+  pendingConfirm = null;
+  showPage("pageInput");
+});
 
 /* 把 AI 抽出的信息映射成 currentMatch 结构 */
 function applyExtracted(p){
@@ -1693,12 +2275,19 @@ function applyExtracted(p){
   showPage("pageIntel");
 }
 
+/* ===== 装备选择状态（提前声明，renderIntel 里会用到）===== */
+let equip = { edu:null, grade:null, major:null, time:null };
+
 /* 渲染副本情报 */
 function renderIntel(){
   document.getElementById("intelName").textContent = currentMatch.name || "未命名比赛";
-  // 实时搜索标识
+  // 实时搜索标识 / 推荐标识
   const badge = document.getElementById("intelBadge");
-  if(currentMatch.isRealtime){
+  if(currentMatch.recWhy){
+    // 从「推荐」来的：展示推荐理由，而不是「实时搜索」标签
+    badge.style.display = "block";
+    badge.innerHTML = '<span style="background:rgba(95,224,138,.15);border-color:#5fe08a;color:#7be3a0;">🎯 根据你的情况推荐 · '+escapeHtml(currentMatch.recWhy)+'</span>';
+  } else if(currentMatch.isRealtime){
     badge.style.display = "block";
     if(currentMatch.isRaw){
       badge.innerHTML = '<span>⚡ 实时搜索结果 · 正在用 AI 深化整理</span>';
@@ -1710,7 +2299,6 @@ function renderIntel(){
     badge.innerHTML = "";
   }
   document.getElementById("intelRows").innerHTML = currentMatch.info.map(([k,v])=>{
-    // 参考来源：可能是多个网址用 · 分隔，逐个做成链接
     if(k === "参考来源"){
       const urls = v.split("·").map(s=>s.trim()).filter(Boolean);
       const links = urls.map((u,i)=>{
@@ -1719,6 +2307,9 @@ function renderIntel(){
       });
       return '<div class="intel-row"><div class="k">'+k+'</div><div class="v">'+links.join("")+'</div></div>';
     }
+    // 规则类字段：加「以官方为准」小标记
+    const isRuleKey = /^(时间|参赛对象|报名入口|赛制|主办|赛道)$/.test(k);
+    const ruleMark = isRuleKey ? '<span class="rule-mark">以官方为准</span>' : '';
     // 报名入口：如果是网址（含 . 或 / 或 http）就做成可点击链接，否则纯文本
     if(k === "报名入口" && v && v !== "未填写"){
       const looksUrl = /^https?:\/\//i.test(v) || /[a-zA-Z0-9]+\.[a-zA-Z]{2,}/.test(v) || v.includes("/");
@@ -1727,16 +2318,28 @@ function renderIntel(){
         return '<div class="intel-row"><div class="k">'+k+'</div><div class="v"><a href="'+href+'" target="_blank" rel="noopener" style="color:#4dd8e0;text-decoration:underline;">'+v+' ↗</a></div></div>';
       }
     }
-    return '<div class="intel-row"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+    return '<div class="intel-row"><div class="k">'+k+'</div><div class="v">'+v+ruleMark+'</div></div>';
   }).join("");
   document.getElementById("intelLevels").innerHTML = currentMatch.levels.map((lv,i)=>
     '<div class="lv"><span class="n">'+(i+1)+'</span><span>'+lv.name+'</span><span style="color:rgba(255,255,255,.55);font-size:12px;margin-left:auto;">'+lv.time+'</span></div>'
   ).join("");
+
+  // 动态改「下一步」按钮文案：测评已填装备 → 直接进入测评，不再让用户重新选
+  const okBtn = document.getElementById("intelOkBtn");
+  const hasEquip = equip.edu || equip.major || equip.time;
+  okBtn.textContent = hasEquip ? "✅ 信息无误，看我的装备测评" : "✅ 信息无误，去选装备";
 }
 renderIntel();
 
 document.getElementById("intelOkBtn").addEventListener("click",()=>{
-  showPage("pageEquip");
+  // 如果已经做过测评（装备已填），跳过「选装备」页，直接进「装备测评」
+  const hasEquip = equip.edu || equip.major || equip.time;
+  if(hasEquip){
+    renderEval();
+    showPage("pageEval");
+  } else {
+    showPage("pageEquip");
+  }
 });
 
 /* ===== 选择比赛页：绑定事件 ===== */
@@ -1763,7 +2366,6 @@ document.getElementById("intelBackBtn").addEventListener("click",()=>{
 });
 
 /* ===== 选装备 ===== */
-let equip = { edu:null, grade:null, major:null, time:null };
 const GRADE_MAP = { "专科":["大一","大二","大三"], "本科":["大一","大二","大三","大四"], "研究生":["研一","研二","研三"] };
 
 function bindEqGroup(containerId, key){
@@ -1798,6 +2400,219 @@ document.getElementById("gradeOpts").addEventListener("click",(e)=>{
   equip.grade = t.dataset.v;
 });
 
+/* ===== 测评页（首页优先入口：先了解你，再推荐比赛）===== */
+const quiz = { edu:null, grade:null, major:null, time:null, type:null, goal:null };
+
+function updateQuizProgress(){
+  const total = 6;
+  let done = 0;
+  ["edu","grade","major","time","type","goal"].forEach(k=>{ if(quiz[k]) done++; });
+  document.getElementById("quizProgress").textContent = "已填 " + done + " / " + total + " 项" + (done===total ? " ✅" : "");
+}
+
+// 通用：给测评里的一组选项绑定「单选点选」逻辑
+function bindQuizGroup(containerId, key, onChange){
+  document.getElementById(containerId).addEventListener("click",(e)=>{
+    const t = e.target.closest(".eq-opt");
+    if(!t) return;
+    document.getElementById(containerId).querySelectorAll(".eq-opt").forEach(o=>o.classList.remove("on"));
+    t.classList.add("on");
+    quiz[key] = t.dataset.v;
+    if(onChange) onChange();
+    updateQuizProgress();
+  });
+}
+
+// 渲染测评页的年级选项（选了学历后才出现）
+function renderQuizGrade(){
+  const box = document.getElementById("quizGrade");
+  if(!quiz.edu){ box.innerHTML = '<span style="color:rgba(255,255,255,.4);font-size:12px;">先选学历，这里自动出现年级</span>'; return; }
+  const grades = GRADE_MAP[quiz.edu] || [];
+  box.innerHTML = grades.map(g=>'<div class="eq-opt" data-v="'+g+'"><span class="gicon">⭐</span>'+g+'</div>').join("");
+}
+
+bindQuizGroup("quizEdu","edu",()=>{ quiz.grade=null; renderQuizGrade(); });
+bindQuizGroup("quizMajor","major");
+bindQuizGroup("quizTime","time");
+bindQuizGroup("quizType","type");
+bindQuizGroup("quizGoal","goal");
+
+// 测评年级点击（quizGrade 动态生成，单独事件委托）
+document.getElementById("quizGrade").addEventListener("click",(e)=>{
+  const t = e.target.closest(".eq-opt");
+  if(!t) return;
+  document.querySelectorAll("#quizGrade .eq-opt").forEach(o=>o.classList.remove("on"));
+  t.classList.add("on");
+  quiz.grade = t.dataset.v;
+  updateQuizProgress();
+});
+
+// 进入测评页时初始化
+function enterQuiz(){
+  // 保留上次已填的，不强制清空（用户可能回来改）
+  renderQuizGrade();
+  updateQuizProgress();
+  showPage("pageQuiz");
+}
+
+document.getElementById("quizBackBtn").addEventListener("click",()=>showPage("pageWelcome"));
+document.getElementById("quizSkipBtn").addEventListener("click",()=>showPage("pageInput"));
+
+// 测评完成：直接算出推荐，一步给结论（不再让用户搜/选）
+document.getElementById("quizDoneBtn").addEventListener("click",()=>{
+  // 把测评结果同步给后续的 equip（装备测评页复用）
+  equip.edu = quiz.edu || null;
+  equip.grade = quiz.grade || null;
+  equip.major = quiz.major || null;
+  equip.time = quiz.time || null;
+  // 现状与动机单独记下，供推荐使用
+  window.__prefType = quiz.type || null;
+  window.__prefGoal = quiz.goal || null;
+
+  const filled = quiz.edu || quiz.major || quiz.time || quiz.type || quiz.goal;
+  if(!filled){
+    // 全空：等同跳过，直接去搜索
+    showPage("pageInput");
+    return;
+  }
+
+  // 直接进推荐结果页（阶段C核心：测评 → 推荐 → 点进闯关）
+  renderRecommend();
+  showPage("pageRecommend");
+});
+
+/* ===== 推荐引擎：根据测评结果给「最适合的 3 个比赛」===== */
+function computeRecommend(){
+  const recs = COMP_LIBRARY.map(comp => {
+    const t = comp.tags || {};
+    let score = 0;
+    const reasons = [];
+
+    // 1) 学历匹配（参赛对象里含关键词就加分）
+    const eduText = (comp.info||[]).find(r=>r[0]==="参赛对象");
+    const eduStr = eduText ? eduText[1] : "";
+    if(quiz.edu){
+      if(eduStr.includes("研究生") || eduStr.includes("在校生") || eduStr.includes("全日制")) {
+        if(quiz.edu==="研究生" && (eduStr.includes("研究生") || eduStr.includes("在校生"))) { score += 3; reasons.push("研究生也能报"); }
+        else if(quiz.edu==="专科" && (eduStr.includes("高职") || eduStr.includes("专科") || eduStr.includes("中职"))) { score += 3; reasons.push("专科有对应赛道/组别"); }
+        else if(quiz.edu==="本科") { score += 2; reasons.push("本科是主力人群"); }
+        else { score += 1; }
+      } else {
+        score -= 2;
+      }
+    }
+
+    // 2) 专业匹配（粗略：数模/算法 vs 计算机，创业 vs 综合）
+    if(quiz.major){
+      const m = quiz.major;
+      if((t.type==="数模算法类") && (m==="理工"||m==="计算机/信息"||m==="经管")){ score += 3; reasons.push("你的专业对数模/算法有优势"); }
+      if((t.type==="职业技能类") && (m==="计算机/信息")){ score += 3; reasons.push("计算机专业打蓝桥杯很对口"); }
+      if((t.type==="创业类") && (m==="经管"||m==="计算机/信息"||m==="理工"||m==="艺术/设计")){ score += 2; reasons.push("你的专业在团队里很吃香"); }
+    }
+
+    // 3) 时间匹配
+    if(quiz.time){
+      if(quiz.time==="很少" && t.timeReq==="少"){ score += 3; reasons.push("时间要求低，适合你"); }
+      else if(quiz.time==="充足" && t.timeReq==="多"){ score += 2; reasons.push("时间充裕，冲高含金量的值得"); }
+      else if(quiz.time==="很少" && (t.timeReq==="多")){ score -= 2; }
+      else { score += 1; }
+    }
+
+    // 4) 现状匹配（第5题：手头有什么）
+    if(quiz.type){
+      if(quiz.type==="有项目" && t.type==="创业类"){ score += 3; reasons.push("你有现成项目，直接能投"); }
+      else if(quiz.type==="有人带" && (t.type==="学术科技类"||t.type==="创业类")){ score += 2; reasons.push("有人带，冲高含金量的更值"); }
+      else if(quiz.type==="从零开始" && t.diff==="低"){ score += 3; reasons.push("门槛低，从零开始也能上手"); }
+    }
+
+    // 5) 动机匹配（第6题：想得到什么）
+    if(quiz.goal){
+      if(quiz.goal==="拿奖加分" && t.star>=4){ score += 3; reasons.push("含金量高，拿奖有分量"); }
+      else if(quiz.goal==="攒经历"){ score += 1; reasons.push("能写进简历的完整经历"); }
+      else if(quiz.goal==="认识人"){ score += 1; }
+    }
+
+    return { comp, score, reasons };
+  });
+
+  // 按分数降序，取前 3
+  recs.sort((a,b)=>b.score-a.score);
+  return recs.slice(0,3);
+}
+
+/* 生成一句「为什么推荐你」的人话理由 */
+function buildWhy(r){
+  const t = r.comp.tags || {};
+  const parts = [];
+  if(r.reasons && r.reasons.length){
+    parts.push(r.reasons[0]);
+  }
+  // 补一条含金量/难度说明
+  const starTxt = "含金量 " + "⭐".repeat(t.star||3);
+  const diffTxt = { "低":"难度低，上手快", "中":"难度中等", "高":"难度偏高，但值得冲" }[t.diff] || "";
+  parts.push(starTxt + (diffTxt ? "，"+diffTxt : ""));
+  return parts.join("。");
+}
+
+/* 渲染推荐结果页 */
+function renderRecommend(){
+  const recs = computeRecommend();
+  const gearParts = [];
+  if(quiz.edu) gearParts.push(quiz.edu + (quiz.grade?"·"+quiz.grade:""));
+  if(quiz.major) gearParts.push(quiz.major);
+  if(quiz.time) gearParts.push(quiz.time);
+  document.getElementById("recGear").textContent = gearParts.length ? ("你的档案：" + gearParts.join("　")) : "";
+
+  const listEl = document.getElementById("recList");
+  listEl.innerHTML = recs.map((r, i)=>{
+    const c = r.comp;
+    const t = c.tags || {};
+    const rankCls = ["r1","r2","r3"][i] || "r3";
+    const rankTxt = ["最推荐","次推荐","也适合"][i] || "";
+    // 标签行
+    const tagHtml = [
+      "难度 " + (t.diff||"—"),
+      "周期 " + ({短:"短",中:"中",长:"长"}[t.cycle]||"—"),
+      "每周 " + ({少:"<5h",中:"5~15h",多:">15h"}[t.timeReq]||"—"),
+      (t.type||"")
+    ].map(x=>'<span>'+x+'</span>').join("");
+    // 前 3 条 info 摘要（主办/赛制/时间）
+    const infoRows = (c.info||[]).slice(0,4).map(([k,v])=>'<div class="ri-row"><span class="ri-k">'+k+'</span><span class="ri-v">'+v+'</span></div>').join("");
+    const why = buildWhy(r);
+    return '<div class="rec-item'+(i===0?" rec-top":"")+'" data-idx="'+i+'">'+
+      '<div class="rec-head"><div class="rec-name">'+c.name+'</div><div class="rec-rank '+rankCls+'">'+rankTxt+'</div></div>'+
+      '<div class="rec-stars">'+ "⭐".repeat(t.star||3) +'</div>'+
+      '<div class="rec-tags">'+tagHtml+'</div>'+
+      '<div class="rec-why">💡 <b>为什么推荐你：</b>'+why+'</div>'+
+      '<div class="rec-info">'+infoRows+'</div>'+
+      '<span class="rec-go">开始闯关 ›</span>'+
+    '</div>';
+  }).join("");
+
+  // 记录当前推荐列表，供点击进入
+  window.__recList = recs;
+}
+
+// 点击推荐卡片 → 直接用预置库构建这个比赛，进入副本情报页（不再走搜索/选候选）
+document.getElementById("recList").addEventListener("click",(e)=>{
+  const item = e.target.closest(".rec-item");
+  if(!item) return;
+  const i = parseInt(item.dataset.idx,10);
+  const recs = window.__recList;
+  if(!recs || !recs[i]) return;
+  currentMatch = buildMatchFromComp(recs[i].comp);
+  // 标记这是「推荐」来的，情报页顶部给出推荐理由
+  currentMatch.recWhy = buildWhy(recs[i]);
+  resetProgressState();
+  pBossName.textContent = "Boss：" + currentMatch.name;
+  renderIntel();
+  showPage("pageIntel");
+});
+
+// 推荐页：都不满意 → 去搜索
+document.getElementById("recSearchBtn").addEventListener("click",()=>showPage("pageInput"));
+document.getElementById("recBackBtn").addEventListener("click",()=>enterQuiz());
+
 document.getElementById("equipDoneBtn").addEventListener("click",()=>{
   renderEval();
   showPage("pageEval");
@@ -1806,8 +2621,8 @@ document.getElementById("equipDoneBtn").addEventListener("click",()=>{
 // 选装备页：不选装备直接进入
 document.getElementById("equipSkipBtn").addEventListener("click",()=>{
   equip = { edu:null, grade:null, major:null, time:null };
-  renderMap();
-  showPage("pageMap");
+  renderStagePick();
+  showPage("pageStagePick");
 });
 // 选装备页返回 → 情报页
 document.getElementById("equipBackBtn").addEventListener("click",()=>{
@@ -1958,54 +2773,310 @@ function renderEval(){
   ).join("");
 }
 
-/* ===== 渲染「过来人经验」独立页（单列，一行一条）===== */
+/* ===== 渲染「过来人经验」独立页（优先联网搜真实经验，通用库仅兜底）===== */
 function renderExp(){
-  const expList = [];
-
-  // 优先用 AI 针对「这个比赛」生成的真实经验
-  if(currentMatch && currentMatch.expTips && currentMatch.expTips.length){
-    currentMatch.expTips.forEach(tip => {
-      if(tip && tip.title){
-        expList.push({ title: tip.title, text: tip.text || "", src: "AI 结合实时搜索信息整理" });
-      }
-    });
-  }
-
-  // 兜底：用通用经验库（按装备匹配）
-  if(expList.length === 0){
-    if(equip.edu && EXP_LIBRARY.edu[equip.edu]) expList.push(...EXP_LIBRARY.edu[equip.edu]);
-    if(equip.major && EXP_LIBRARY.major[equip.major]) expList.push(EXP_LIBRARY.major[equip.major]);
-    if(equip.time && EXP_LIBRARY.time[equip.time]) expList.push(EXP_LIBRARY.time[equip.time]);
-    expList.push(...EXP_LIBRARY.common);
-  } else {
-    // 有 AI 经验时，也补 1 条通用避坑（选题/材料），增加实用性
-    expList.push(...EXP_LIBRARY.common);
-  }
-
-  const seen = new Set();
-  const finalExp = expList.filter(e=>{ if(seen.has(e.title)) return false; seen.add(e.title); return true; });
-
-  document.getElementById("expPageMatch").textContent = currentMatch.name || "当前比赛";
-  document.getElementById("expPageList").innerHTML = finalExp.map(e=>
-    '<div class="exp-card">'+
-      '<div class="ex-title">💡 '+e.title+'</div>'+
-      '<div class="ex-text">'+e.text+'</div>'+
-      '<div class="ex-src">来源：'+e.src+'</div>'+
-    '</div>'
-  ).join("");
+  const name = currentMatch.name || "当前比赛";
+  document.getElementById("expPageMatch").textContent = name;
   document.getElementById("expPageNote").textContent =
     "以上内容结合了实时搜索信息与参赛经验，会随时间和赛道变化，仅供参考，请以官方通知为准。";
+
+  // 先看有没有「针对这个比赛」的真实经验（联网搜到并整理好的）
+  const hasAiExp = currentMatch && currentMatch.expTips && currentMatch.expTips.length;
+
+  if(hasAiExp){
+    // 已有真实经验，直接渲染
+    paintExp(expListFromAi(currentMatch.expTips));
+  } else {
+    // 还没有：先显示「正在联网搜真实经验」，再后台去搜
+    paintExpLoading();
+    fetchExpForMatch(name);
+  }
 }
 
-document.getElementById("evalGoBtn").addEventListener("click",()=>{
-  renderMap();
-  showPage("pageMap");
+/* 由 AI 经验拼出展示列表 */
+function expListFromAi(tips){
+  const list = [];
+  tips.forEach(tip => {
+    if(tip && tip.title){
+      list.push({ title: tip.title, text: tip.text || "", url: tip.url || "" });
+    }
+  });
+  return list;
+}
+
+/* 渲染经验列表到页面 */
+function paintExp(list){
+  const seen = new Set();
+  const finalExp = (list||[]).filter(e=>{ if(!e || !e.title) return false; if(seen.has(e.title)) return false; seen.add(e.title); return true; });
+  document.getElementById("expPageList").innerHTML = finalExp.map(e=>{
+    const srcHtml = (e.url && /^https?:\/\//i.test(e.url))
+      ? '<a class="ex-src ex-link" href="'+escapeHtml(e.url)+'" target="_blank" rel="noopener">查看来源 ↗</a>'
+      : '<div class="ex-src">来源：' + (escapeHtml(e.src) || "AI 结合实时搜索信息整理") + '</div>';
+    return '<div class="exp-card">'+
+      '<div class="ex-title">💡 '+escapeHtml(e.title)+'<span class="ex-tag">👤 个人经验</span></div>'+
+      '<div class="ex-text">'+escapeHtml(e.text)+'</div>'+
+      srcHtml+
+    '</div>';
+  }).join("");
+}
+
+/* 加载中占位 */
+function paintExpLoading(){
+  document.getElementById("expPageList").innerHTML =
+    '<div class="exp-card" style="border-style:dashed;border-color:rgba(77,216,224,.5);">'+
+      '<div class="ex-title">🔍 正在联网搜索真实参赛经验…</div>'+
+      '<div class="ex-text">我去网上找关于「'+escapeHtml(currentMatch.name)+'」的过来人经验和避坑点，几秒后自动替换成真实内容。不套通用模板、不张冠李戴。</div>'+
+      '<div class="ex-src">正在搜索，请稍候…</div>'+
+    '</div>';
+}
+
+/* 兜底：通用经验库（仅当联网搜索完全失败时使用） */
+function paintExpFallback(){
+  const expList = [];
+  if(equip.edu && EXP_LIBRARY.edu[equip.edu]) expList.push(...EXP_LIBRARY.edu[equip.edu]);
+  if(equip.major && EXP_LIBRARY.major[equip.major]) expList.push(EXP_LIBRARY.major[equip.major]);
+  if(equip.time && EXP_LIBRARY.time[equip.time]) expList.push(EXP_LIBRARY.time[equip.time]);
+  expList.push(...EXP_LIBRARY.common);
+  // 加一条说明：这是通用建议，不是针对这个比赛的
+  expList.unshift({ title:"暂时没搜到这个比赛的具体经验", text:"下面是通用的参赛建议，供你参考。等联网搜索恢复后，会换成针对「"+currentMatch.name+"」的真实经验。", src:"提示" });
+  paintExp(expList);
+}
+
+/* 联网搜「XX比赛 参赛经验/避坑」，再用 LLM 整理成针对性经验 */
+let expSearching = false;
+async function fetchExpForMatch(name){
+  if(expSearching) return;
+  expSearching = true;
+  try {
+    const q = name + " 参赛经验 避坑 注意事项";
+    const online = await searchOnline(q);
+    if(!online || !online.configured || !online.results || !online.results.length){
+      paintExpFallback();
+      return;
+    }
+    // 用 LLM 把搜索结果整理成过来人经验
+    const tips = await searchResultsToExp(name, online.results);
+    if(tips && tips.length){
+      currentMatch.expTips = tips;
+      paintExp(expListFromAi(tips));
+    } else {
+      paintExpFallback();
+    }
+  } catch(e){
+    paintExpFallback();
+  } finally {
+    expSearching = false;
+  }
+}
+
+/* 把搜索结果交给后端 LLM，整理成「针对这个比赛的过来人经验」 */
+async function searchResultsToExp(name, results){
+  // 演示模式：直接返回预置经验
+  if(DEMO_MODE){
+    return DEMO_EXP.slice();
+  }
+  const summary = results.slice(0,8).map((r,i)=>{
+    let s = "[" + (i+1) + "] " + (r.title || "");
+    if(r.snippet) s += "\n摘要：" + r.snippet;
+    if(r.url) s += "\n链接：" + r.url;
+    return s;
+  }).join("\n\n");
+
+  const endpoint = (window.location.origin || "http://127.0.0.1:3000") + "/api/summarize";
+  const controller = new AbortController();
+  const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 40000);
+
+  try {
+    const resp = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task: "exp", name: name, context: summary }),
+      signal: controller.signal,
+    });
+    const json = await resp.json();
+    clearTimeout(timeout);
+    if(!json.ok || !json.result){
+      return null;
+    }
+    let parsed = null;
+    try { parsed = JSON.parse(json.result); }
+    catch(e){
+      const m = json.result.match(/\{[\s\S]*\}/);
+      if(m){ try { parsed = JSON.parse(m[0]); } catch(e2){ parsed = null; } }
+    }
+    if(parsed && Array.isArray(parsed.exp) && parsed.exp.length){
+      return parsed.exp.filter(e=>e && e.title);
+    }
+    return null;
+  } catch(err){
+    clearTimeout(timeout);
+    return null;
+  }
+}
+
+/* ===== 选择当前赛段 ===== */
+function renderStagePick(){
+  const list = document.getElementById("stagePickList");
+  const levels = currentMatch.levels;
+  const icons = ["👑","🛡️","🐉","👹"];
+  list.innerHTML = levels.map((lv, i)=>{
+    const last = i === levels.length - 1;
+    const done = clearedLevels[i];
+    // 每个赛段都是「一条不同的路线」，可自由选择当前所在赛段；已完成的打勾
+    let tag, tagCls;
+    if(done){
+      tag = "✅ 已完成";
+      tagCls = "done";
+    } else if(i === 0){
+      tag = "起点";
+      tagCls = "";
+    } else if(last){
+      tag = "终点";
+      tagCls = "";
+    } else {
+      tag = "中间环节";
+      tagCls = "";
+    }
+    const desc = done ? "这一段已经走完了，可点开回看" : "点进去，带你走这一赛段自己的路线";
+    return '<div class="pick-opt" data-i="'+i+'">'+
+      '<div class="po-name">'+icons[i]+' 第 '+(i+1)+' 段 · '+lv.name+'</div>'+
+      '<div class="po-desc">'+desc+'</div>'+
+      '<div class="po-foot"><span class="po-tag'+(tagCls==='done'?' po-tag-done':'')+'">'+tag+'</span></div>'+
+    '</div>';
+  }).join("");
+}
+
+document.getElementById("stagePickList").addEventListener("click",(e)=>{
+  const t = e.target.closest(".pick-opt");
+  if(!t) return;
+  const i = parseInt(t.dataset.i,10);
+  pickStage(i);
 });
 
-// 测评页 → 看过来人经验
+function pickStage(i){
+  currentStage = i;
+  stagePicked = true;
+  currentLevel = i;
+  renderMap();
+  showPage("pageMap");
+  // 后台用 AI 针对「该比赛 + 该赛段」重新生成更细的子步骤路线，生成后自动刷新地图
+  enrichStageSteps(i);
+}
+
+// 点开当前赛段内部的某个步骤节点 → 弹窗讲解
+function openStageStep(stageIdx, stepIdx){
+  const lv = currentMatch.levelsDetail[stageIdx];
+  if(!lv || !lv.steps || !lv.steps[stepIdx]) return;
+  const s = lv.steps[stepIdx];
+  document.getElementById("modalTitle").textContent = s.title;
+  document.getElementById("modalHow").textContent = s.how;
+  document.getElementById("modalNeed").textContent = s.need;
+  document.getElementById("modalNote").textContent = s.note;
+  const box = document.getElementById("stepModal").querySelector(".modal-box");
+  box.classList.remove("reward-box");
+  box.innerHTML = defaultModalHTML;
+  document.getElementById("modalTitle").textContent = s.title;
+  document.getElementById("modalHow").textContent = s.how;
+  document.getElementById("modalNeed").textContent = s.need;
+  document.getElementById("modalNote").textContent = s.note;
+  document.getElementById("stepModal").classList.add("show");
+}
+
+/* 针对「当前赛段」用 AI 重新生成更细的子步骤路线（4~6 步），替换手写版 */
+async function enrichStageSteps(stageIdx){
+  const lv = currentMatch.levelsDetail[stageIdx];
+  const stageName = currentMatch.levels[stageIdx] ? currentMatch.levels[stageIdx].name : "";
+  const matchName = currentMatch.name || "当前比赛";
+  if(!lv || !stageName) return;
+
+  // 演示模式：不调后端，直接用已有的手写步骤（已经很丰富，无需再生成）
+  if(DEMO_MODE){
+    if(stagePicked && currentStage === stageIdx){
+      document.getElementById("mapSub").textContent = "你正在「"+stageName+"」这一赛段（演示模式，已用示例内容）";
+    }
+    return;
+  }
+
+  // 加载提示
+  if(stagePicked && currentStage === stageIdx){
+    const sub = document.getElementById("mapSub");
+    sub.textContent = "⏳ 正在为你生成「"+stageName+"」的专属路线…";
+  }
+
+  // 拼上下文：比赛名 + 赛段名 + 该比赛基本信息（赛制等）+ 手写版步骤作参考
+  const infoText = (currentMatch.info || []).map(([k,v])=>k+"："+v).join("\n");
+  const oldSteps = (lv.steps||[]).map(s=>"- "+s.title+(s.how?"："+s.how:"")).join("\n");
+  const context = "比赛名：" + matchName + "\n赛段名：" + stageName + "\n\n比赛基本信息：\n" + infoText + "\n\n（以下是这个赛段已有的步骤草稿，供你参考并细化）：\n" + oldSteps;
+
+  const endpoint = (window.location.origin || "http://127.0.0.1:3000") + "/api/summarize";
+  const controller = new AbortController();
+  const timeout = setTimeout(() => { try { controller.abort(); } catch(e){} }, 40000);
+  try {
+    const resp = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task: "stage", name: matchName + " · " + stageName, context: context }),
+      signal: controller.signal,
+    });
+    const json = await resp.json();
+    clearTimeout(timeout);
+    if(!json.ok || !json.result) return;
+
+    let parsed = null;
+    try { parsed = JSON.parse(json.result); }
+    catch(e){ const m = json.result.match(/\{[\s\S]*\}/); if(m){ try{ parsed = JSON.parse(m[0]); }catch(e2){} } }
+    if(!parsed) return;
+
+    const aiSteps = (Array.isArray(parsed.steps) && parsed.steps.length) ? parsed.steps : [];
+    if(aiSteps.length){
+      // 统一成 {title,how,need,note} 结构
+      const normalized = aiSteps.map(s => ({
+        title: s.title || s.step || "这一步",
+        how: s.how || s.step || "",
+        need: s.need || "按官方通知准备相应材料。",
+        note: s.note || "以官方通知为准。"
+      }));
+      currentMatch.levelsDetail[stageIdx].steps = normalized;
+      // 若当前正停留在这个赛段的地图，立即刷新
+      if(stagePicked && currentStage === stageIdx && document.getElementById("pageMap").classList.contains("hidden")===false){
+        renderMap();
+      }
+    }
+  } catch(err){
+    clearTimeout(timeout);
+    console.error("enrichStageSteps error:", err);
+  }
+}
+
+// 「走完这段，进入下一赛段」：标记当前赛段完成，跳到下一个还没完成的赛段
+document.getElementById("nextStageBtn").addEventListener("click",()=>{
+  clearedLevels[currentStage] = true;
+  // 找下一个还没完成的赛段
+  let next = currentMatch.levelsDetail.findIndex((_, i)=> i > currentStage && !clearedLevels[i]);
+  if(next === -1) next = currentMatch.levelsDetail.findIndex((_, i)=> !clearedLevels[i]);
+  if(next !== -1 && next !== currentStage){
+    currentStage = next;
+    renderMap();
+    showPage("pageMap");
+  } else {
+    // 全部走完 → 显示总奖励
+    showTotalReward();
+  }
+});
+
+document.getElementById("stagePickBackBtn").addEventListener("click",()=>{
+  showPage("pageEval");
+});
+
+document.getElementById("evalGoBtn").addEventListener("click",()=>{
+  renderStagePick();
+  showPage("pageStagePick");
+});
+
+// 测评页 → 看过来人经验（进页面后自动联网搜真实经验）
 document.getElementById("evalExpBtn").addEventListener("click",()=>{
-  renderExp();
   showPage("pageExp");
+  renderExp();
 });
 // 过来人经验页 → 返回测评
 document.getElementById("expBackBtn").addEventListener("click",()=>{
@@ -2062,41 +3133,50 @@ function runProgress(){
 /* ===== 关卡地图 ===== */
 let clearedLevels = [false,false,false,false];
 let currentLevel = -1;
+let currentStage = 0;     // 用户当前所处的赛段索引（从「选赛段」来）
+let stagePicked = false;  // 是否已经选过赛段
 
 function renderMap(){
   const track = document.getElementById("mapTrack");
   const hasEquip = equip.edu || equip.major || equip.time;
-  document.getElementById("mapSub").textContent = hasEquip
-    ? "你已装备好，从第一关开始，逐个击破"
-    : "未选装备，先带你走一遍流程";
-  track.innerHTML = currentMatch.levelsDetail.map((lv,i)=>{
-    const done = clearedLevels[i];
-    const cls = done ? "done" : (i===currentLevel ? "current" : "");
-    return '<div class="map-node '+cls+'" data-i="'+i+'">'+
-      '<div class="dot">'+(done?"✅":["👑","🛡️","🐉","👹"][i])+'</div>'+
-      '<div class="nm">'+lv.gameName+'</div>'+
-      '<div class="rt">'+currentMatch.levels[i].name+'</div>'+
-      '<div class="rt2">'+currentMatch.levels[i].time+'</div>'+
+  // 当前赛段
+  const lv = currentMatch.levelsDetail[currentStage];
+  const stageName = currentMatch.levels[currentStage] ? currentMatch.levels[currentStage].name : "";
+  const totalStages = currentMatch.levelsDetail.length;
+  // 标题：标明当前赛段
+  document.getElementById("mapTitle").textContent = "🗺️ " + stageName + " · 闯关路线";
+  // 副标题：当前在哪个赛段 + 这是四条路线里的第几条
+  document.getElementById("mapSub").textContent =
+    "你现在在「" + stageName + "」（第 " + (currentStage+1) + " / " + totalStages + " 段）——这是这一赛段自己的闯关路线，走完它，再回选下一赛段";
+
+  // 地图展示「当前赛段内部的步骤」作为节点路线（每条路线各不相同）
+  const steps = (lv && lv.steps && lv.steps.length) ? lv.steps : [];
+  const icons = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣"];
+  track.innerHTML = steps.map((s, i)=>{
+    // 节点副标题：用 how 的前半句当一句话预告，比「点开看怎么做」更有路线感
+    const brief = (s.how && s.how !== "点开看怎么做") ? (s.how.length > 22 ? s.how.slice(0,22)+"…" : s.how) : "点开看怎么做";
+    return '<div class="map-node" data-i="'+i+'">'+
+      '<div class="dot">'+icons[i]+'</div>'+
+      '<div class="nm">'+s.title+'</div>'+
+      '<div class="rt">'+ brief +'</div>'+
     '</div>';
   }).join("");
   track.querySelectorAll(".map-node").forEach(node=>{
     node.addEventListener("click",()=>{
       const i = parseInt(node.dataset.i,10);
-      if(i>0 && !clearedLevels[i-1]){
-        alert("先打通前面那关，再打这关～");
-        return;
-      }
-      openLevel(i);
+      openStageStep(currentStage, i);
     });
   });
 
-  // 4 关全通 → 显示「查看总奖励」按钮
+  // 全部赛段都通关 → 显示总奖励；否则显示「进入下一赛段」按钮
   const allClear = clearedLevels.every(v=>v===true);
   document.getElementById("totalRewardBtn").style.display = allClear ? "inline-flex" : "none";
+  document.getElementById("nextStageBtn").style.display = (!allClear && stagePicked) ? "inline-flex" : "none";
 }
 
 document.getElementById("mapBackBtn").addEventListener("click",()=>{
-  showPage("pageEquip");
+  renderStagePick();
+  showPage("pageStagePick");
 });
 
 /* ===== 总奖励结算（4 关全通后）===== */
@@ -2257,6 +3337,10 @@ function showReward(i, fromComplete){
     box.innerHTML = defaultModalHTML;
     if(fromComplete){
       clearedLevels[i] = true;
+      // 完成当前赛段后，前进到下一赛段（最多到最后一段）
+      if(stagePicked && i === currentStage && currentStage < currentMatch.levelsDetail.length - 1){
+        currentStage = currentStage + 1;
+      }
       renderMap();
       showPage("pageMap");
     }
