@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>欢迎挑战竞赛副本（效果演示）</title>
+<title>欢迎挑战竞赛副本</title>
 <style>
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;}
@@ -395,7 +395,7 @@
 
   <!-- ===== 第 1 页：欢迎 ===== -->
   <div class="page" id="pageWelcome">
-    <h1 class="px-title" id="welcomeTitle">欢迎挑战竞赛副本（效果演示）</h1>
+    <h1 class="px-title" id="welcomeTitle">欢迎挑战竞赛副本</h1>
     <p class="px-sub">先花 20 秒测出「你适合打哪几场比赛」，再带你一关关打下来</p>
     <div class="btn-row">
       <button class="px-btn" id="enterBtn">🎯 先做测评</button>
@@ -984,10 +984,13 @@ const DEMO_EXP = [
   { title:"答辩练到能脱稿", text:"能用一句话说清项目价值，比背稿子更重要。" }
 ];
 
-// 演示模式下：显示顶部横幅提示
+// 演示模式下：显示顶部横幅提示 + 标题加「效果演示」
 if(DEMO_MODE){
   const banner = document.getElementById("demoBanner");
   if(banner) banner.style.display = "block";
+  document.title = "欢迎挑战竞赛副本（效果演示）";
+  const wt = document.getElementById("welcomeTitle");
+  if(wt) wt.textContent = "欢迎挑战竞赛副本（效果演示）";
 }
 
 document.getElementById("enterBtn").addEventListener("click",()=>enterQuiz());
